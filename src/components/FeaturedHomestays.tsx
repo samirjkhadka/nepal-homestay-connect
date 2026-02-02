@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Star, MapPin, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import homestay1 from '@/assets/homestay-1.jpg';
 import homestay2 from '@/assets/homestay-2.jpg';
 import homestay3 from '@/assets/homestay-3.jpg';
@@ -7,7 +8,7 @@ import homestay4 from '@/assets/homestay-4.jpg';
 
 const featuredHomestays = [
   {
-    id: 1,
+    id: 'mountain-view-retreat',
     name: 'Mountain View Retreat',
     location: 'Pokhara, Gandaki',
     price: 2500,
@@ -17,7 +18,7 @@ const featuredHomestays = [
     featured: true,
   },
   {
-    id: 2,
+    id: 'traditional-gurung-house',
     name: 'Traditional Gurung House',
     location: 'Ghandruk, Kaski',
     price: 1800,
@@ -26,7 +27,7 @@ const featuredHomestays = [
     image: homestay2,
   },
   {
-    id: 3,
+    id: 'himalayan-eco-lodge',
     name: 'Himalayan Eco Lodge',
     location: 'Nagarkot, Bhaktapur',
     price: 3200,
@@ -35,7 +36,7 @@ const featuredHomestays = [
     image: homestay3,
   },
   {
-    id: 4,
+    id: 'tharu-cultural-homestay',
     name: 'Tharu Cultural Homestay',
     location: 'Chitwan, Narayani',
     price: 1500,
@@ -90,55 +91,59 @@ export function FeaturedHomestays() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {featuredHomestays.map((homestay) => (
-            <motion.div
-              key={homestay.id}
-              variants={cardVariants}
-              whileHover={{ y: -8 }}
-              className="group bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300 border border-border"
-            >
-              {/* Image */}
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <img
-                  src={homestay.image}
-                  alt={homestay.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                {homestay.featured && (
-                  <div className="absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
-                    Featured
-                  </div>
-                )}
-                <button className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white transition-colors">
-                  <Heart className="w-4 h-4 text-foreground" />
-                </button>
-              </div>
+            <Link key={homestay.id} to={`/homestay/${homestay.id}`}>
+              <motion.div
+                variants={cardVariants}
+                whileHover={{ y: -8 }}
+                className="group bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300 border border-border"
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={homestay.image}
+                    alt={homestay.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {homestay.featured && (
+                    <div className="absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
+                      Featured
+                    </div>
+                  )}
+                  <button 
+                    onClick={(e) => e.preventDefault()}
+                    className="absolute top-3 right-3 p-2 rounded-full bg-card/80 hover:bg-card transition-colors"
+                  >
+                    <Heart className="w-4 h-4 text-foreground" />
+                  </button>
+                </div>
 
-              {/* Content */}
-              <div className="p-4">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                  <MapPin className="w-4 h-4" />
-                  {homestay.location}
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {homestay.name}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-accent text-accent" />
-                    <span className="font-medium">{homestay.rating}</span>
-                    <span className="text-muted-foreground text-sm">
-                      ({homestay.reviews})
-                    </span>
+                {/* Content */}
+                <div className="p-4">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                    <MapPin className="w-4 h-4" />
+                    {homestay.location}
                   </div>
-                  <div className="text-right">
-                    <span className="font-semibold text-primary">
-                      NPR {homestay.price.toLocaleString()}
-                    </span>
-                    <span className="text-muted-foreground text-sm">/night</span>
+                  <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {homestay.name}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-accent text-accent" />
+                      <span className="font-medium">{homestay.rating}</span>
+                      <span className="text-muted-foreground text-sm">
+                        ({homestay.reviews})
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold text-primary">
+                        NPR {homestay.price.toLocaleString()}
+                      </span>
+                      <span className="text-muted-foreground text-sm">/night</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </motion.div>
 
