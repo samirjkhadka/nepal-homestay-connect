@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { name: 'Home', href: '/' },
+  { name: 'Search', href: '/search' },
   { name: 'Packages', href: '/packages' },
-  { name: 'Homestays', href: '/homestays' },
   { name: 'Blogs', href: '/blogs' },
   { name: 'About Us', href: '/about' },
   { name: 'Contact', href: '/contact' },
@@ -32,30 +33,31 @@ export function Navbar() {
       <div className="section-container">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <motion.a
-            href="/"
-            className="flex items-center gap-3"
-            whileHover={{ scale: 1.02 }}
-          >
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-xl">N</span>
-            </div>
-            <span className="font-display text-xl font-semibold text-foreground">
-              Nepali Homestays
-            </span>
-          </motion.a>
+          <motion.div whileHover={{ scale: 1.02 }}>
+            <Link
+              to="/"
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-display font-bold text-xl">N</span>
+              </div>
+              <span className="font-display text-xl font-semibold text-foreground">
+                Nepali Homestays
+              </span>
+            </Link>
+          </motion.div>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             {navItems.map((item) => (
-              <motion.a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className="nav-link text-foreground/80 hover:text-primary font-medium transition-colors"
-                whileHover={{ y: -2 }}
               >
-                {item.name}
-              </motion.a>
+                <motion.span whileHover={{ y: -2 }} className="block">
+                  {item.name}
+                </motion.span>
+              </Link>
             ))}
           </div>
 
@@ -128,16 +130,20 @@ export function Navbar() {
           >
             <div className="section-container py-4 space-y-4">
               {navItems.map((item, index) => (
-                <motion.a
+                <motion.div
                   key={item.name}
-                  href={item.href}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="block py-2 text-foreground/80 hover:text-primary font-medium"
                 >
-                  {item.name}
-                </motion.a>
+                  <Link
+                    to={item.href}
+                    className="block py-2 text-foreground/80 hover:text-primary font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
               ))}
               
               <div className="pt-4 border-t border-border space-y-3">

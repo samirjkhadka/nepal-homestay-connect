@@ -9,7 +9,6 @@ import {
   Users, 
   BedDouble, 
   Bath,
-  Home,
   MessageCircle,
   Award,
   Calendar
@@ -20,118 +19,11 @@ import { AmenitiesList } from '@/components/AmenitiesList';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { BookingCard } from '@/components/BookingCard';
 import { Footer } from '@/components/Footer';
-
-// Import images
-import homestay1 from '@/assets/homestay-1.jpg';
-import homestay2 from '@/assets/homestay-2.jpg';
-import homestay3 from '@/assets/homestay-3.jpg';
-import room1 from '@/assets/room-1.jpg';
-import room2 from '@/assets/room-2.jpg';
-import room3 from '@/assets/room-3.jpg';
-
-// Mock data for homestays
-const homestaysData: Record<string, {
-  id: string;
-  name: string;
-  location: string;
-  province: string;
-  description: string;
-  longDescription: string;
-  pricePerNight: number;
-  rating: number;
-  reviews: number;
-  maxGuests: number;
-  bedrooms: number;
-  bathrooms: number;
-  host: {
-    name: string;
-    since: string;
-    responseRate: number;
-    responseTime: string;
-    isSuperhost: boolean;
-  };
-  images: string[];
-  amenities: string[];
-  reviewsList: {
-    id: number;
-    author: string;
-    avatar: string;
-    date: string;
-    rating: number;
-    comment: string;
-    helpful: number;
-  }[];
-}> = {
-  'mountain-view-retreat': {
-    id: 'mountain-view-retreat',
-    name: 'Mountain View Retreat',
-    location: 'Sarangkot',
-    province: 'Gandaki Province',
-    description: 'A stunning traditional homestay with panoramic Himalayan views',
-    longDescription: `Welcome to Mountain View Retreat, a beautiful traditional Nepali homestay perched on the hills of Sarangkot. Wake up to breathtaking views of the Annapurna range and Machapuchare (Fishtail) mountain right from your window.
-
-Our family has been welcoming travelers for over 15 years, offering authentic Nepali hospitality and home-cooked organic meals. The homestay features traditional stone architecture with modern comforts, surrounded by terraced gardens and rhododendron forests.
-
-Experience village life, join us for morning yoga sessions, or simply relax on the terrace watching the sunset paint the mountains in golden hues. We're perfectly located for day hikes to nearby viewpoints and just 30 minutes from Pokhara city.`,
-    pricePerNight: 2500,
-    rating: 4.9,
-    reviews: 128,
-    maxGuests: 4,
-    bedrooms: 2,
-    bathrooms: 1,
-    host: {
-      name: 'Deepak Gurung',
-      since: '2010',
-      responseRate: 98,
-      responseTime: 'within an hour',
-      isSuperhost: true,
-    },
-    images: [homestay1, room1, room2, room3, homestay2, homestay3],
-    amenities: ['wifi', 'meals', 'mountainView', 'hotWater', 'heating', 'breakfast', 'garden', 'terrace', 'familyFriendly', 'bedroom', 'bathroom', 'cleaning'],
-    reviewsList: [
-      {
-        id: 1,
-        author: 'Sarah Mitchell',
-        avatar: '',
-        date: 'January 2026',
-        rating: 5,
-        comment: 'Absolutely magical experience! Deepak and his family made us feel like part of their home. The views are even better than the photos, and the dal bhat was the best we had in Nepal.',
-        helpful: 24,
-      },
-      {
-        id: 2,
-        author: 'James Chen',
-        avatar: '',
-        date: 'December 2025',
-        rating: 5,
-        comment: 'The perfect escape from the busy tourist areas. Peaceful, authentic, and the sunrise views of the Annapurna range are unforgettable. Highly recommend the cooking class!',
-        helpful: 18,
-      },
-      {
-        id: 3,
-        author: 'Emma Watson',
-        avatar: '',
-        date: 'November 2025',
-        rating: 5,
-        comment: 'We stayed for 4 nights and didnt want to leave. The hospitality is genuine, the food is incredible, and Deepak knows all the best hiking trails. Book this place!',
-        helpful: 31,
-      },
-      {
-        id: 4,
-        author: 'Michael Brown',
-        avatar: '',
-        date: 'November 2025',
-        rating: 4,
-        comment: 'Great location and wonderful hosts. The room was clean and comfortable. Only minor issue was the WiFi being a bit slow, but thats expected in the mountains.',
-        helpful: 12,
-      },
-    ],
-  },
-};
+import { getHomestayById } from '@/data/homestays';
 
 export default function HomestayDetail() {
   const { id } = useParams<{ id: string }>();
-  const homestay = homestaysData[id || 'mountain-view-retreat'] || homestaysData['mountain-view-retreat'];
+  const homestay = getHomestayById(id || 'mountain-view-retreat') || getHomestayById('mountain-view-retreat')!;
 
   return (
     <div className="min-h-screen bg-background">

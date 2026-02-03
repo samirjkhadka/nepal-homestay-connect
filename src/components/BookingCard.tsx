@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Star, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { CalendarIcon, Users, Star, ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
+import { format, differenceInDays, eachDayOfInterval, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { getUnavailableDates } from '@/data/homestays';
+import { useParams } from 'react-router-dom';
 
 interface BookingCardProps {
   pricePerNight: number;
@@ -12,18 +18,56 @@ interface BookingCardProps {
 }
 
 export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: BookingCardProps) {
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
+  const { id } = useParams<{ id: string }>();
+  const [checkIn, setCheckIn] = useState<Date | undefined>();
+  const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
   const [showGuestPicker, setShowGuestPicker] = useState(false);
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkOutOpen, setCheckOutOpen] = useState(false);
+
+  // Get unavailable dates for this homestay
+  const unavailableDates = useMemo(() => {
+    if (!id) return [];
+    return getUnavailableDates(id);
+  }, [id]);
+
+  // Check if a date is unavailable
+  const isDateUnavailable = (date: Date): boolean => {
+    // Past dates are unavailable
+    if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+    // Check if date is in booked dates
+    return unavailableDates.some(unavailable => isSameDay(date, unavailable));
+  };
+
+  // Check if selected range has any unavailable dates
+  const hasUnavailableDatesInRange = useMemo(() => {
+    if (!checkIn || !checkOut) return false;
+    const daysInRange = eachDayOfInterval({ start: checkIn, end: checkOut });
+    return daysInRange.some(day => unavailableDates.some(unavailable => isSameDay(day, unavailable)));
+  }, [checkIn, checkOut, unavailableDates]);
 
   const nights = checkIn && checkOut 
-    ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
+    ? differenceInDays(checkOut, checkIn)
     : 0;
   
   const subtotal = nights * pricePerNight;
   const serviceFee = Math.round(subtotal * 0.1);
   const total = subtotal + serviceFee;
+
+  const handleCheckInSelect = (date: Date | undefined) => {
+    setCheckIn(date);
+    setCheckInOpen(false);
+    // Reset checkout if it's before the new check-in
+    if (date && checkOut && checkOut <= date) {
+      setCheckOut(undefined);
+    }
+  };
+
+  const handleCheckOutSelect = (date: Date | undefined) => {
+    setCheckOut(date);
+    setCheckOutOpen(false);
+  };
 
   const handleBooking = () => {
     if (!checkIn || !checkOut) {
@@ -32,6 +76,10 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
     }
     if (nights <= 0) {
       toast.error('Check-out must be after check-in');
+      return;
+    }
+    if (hasUnavailableDatesInRange) {
+      toast.error('Some dates in your selection are unavailable');
       return;
     }
     toast.success('Booking request sent! The host will confirm shortly.');
@@ -58,32 +106,84 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
         </div>
       </div>
 
-      {/* Date Selection */}
+      {/* Date Selection with Calendar */}
       <div className="border border-border rounded-xl overflow-hidden mb-4">
         <div className="grid grid-cols-2 divide-x divide-border">
-          <div className="p-3">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Check-in
-            </label>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full bg-transparent text-foreground outline-none text-sm mt-1"
-            />
-          </div>
-          <div className="p-3">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Check-out
-            </label>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              min={checkIn}
-              className="w-full bg-transparent text-foreground outline-none text-sm mt-1"
-            />
-          </div>
+          {/* Check-in Date Picker */}
+          <Popover open={checkInOpen} onOpenChange={setCheckInOpen}>
+            <PopoverTrigger asChild>
+              <button className="p-3 text-left hover:bg-muted/50 transition-colors w-full">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide block">
+                  Check-in
+                </label>
+                <div className={cn(
+                  "text-sm mt-1 flex items-center gap-2",
+                  !checkIn && "text-muted-foreground"
+                )}>
+                  <CalendarIcon className="w-4 h-4" />
+                  {checkIn ? format(checkIn, "MMM d, yyyy") : "Select date"}
+                </div>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={checkIn}
+                onSelect={handleCheckInSelect}
+                disabled={isDateUnavailable}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+              <div className="px-3 pb-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="w-3 h-3 rounded bg-muted border" />
+                  <span>Available</span>
+                  <div className="w-3 h-3 rounded bg-muted-foreground/30 ml-2" />
+                  <span>Unavailable</span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Check-out Date Picker */}
+          <Popover open={checkOutOpen} onOpenChange={setCheckOutOpen}>
+            <PopoverTrigger asChild>
+              <button className="p-3 text-left hover:bg-muted/50 transition-colors w-full">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide block">
+                  Check-out
+                </label>
+                <div className={cn(
+                  "text-sm mt-1 flex items-center gap-2",
+                  !checkOut && "text-muted-foreground"
+                )}>
+                  <CalendarIcon className="w-4 h-4" />
+                  {checkOut ? format(checkOut, "MMM d, yyyy") : "Select date"}
+                </div>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={checkOut}
+                onSelect={handleCheckOutSelect}
+                disabled={(date) => {
+                  if (isDateUnavailable(date)) return true;
+                  if (checkIn && date <= checkIn) return true;
+                  return false;
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+              <div className="px-3 pb-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="w-3 h-3 rounded bg-muted border" />
+                  <span>Available</span>
+                  <div className="w-3 h-3 rounded bg-muted-foreground/30 ml-2" />
+                  <span>Unavailable</span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         
         {/* Guest Picker */}
@@ -140,10 +240,19 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
         </div>
       </div>
 
+      {/* Availability Warning */}
+      {hasUnavailableDatesInRange && (
+        <div className="flex items-center gap-2 text-destructive text-sm mb-4 p-3 bg-destructive/10 rounded-lg">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>Some dates in your selection are unavailable</span>
+        </div>
+      )}
+
       {/* Book Button */}
       <Button
         onClick={handleBooking}
-        className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 rounded-xl"
+        disabled={hasUnavailableDatesInRange}
+        className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 rounded-xl disabled:opacity-50"
       >
         Reserve Now
       </Button>
@@ -153,7 +262,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       </p>
 
       {/* Price Breakdown */}
-      {nights > 0 && (
+      {nights > 0 && !hasUnavailableDatesInRange && (
         <div className="mt-6 pt-6 border-t border-border space-y-3">
           <div className="flex justify-between text-foreground">
             <span className="underline">
