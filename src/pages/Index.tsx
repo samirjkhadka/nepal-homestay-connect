@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { SearchSection } from '@/components/SearchSection';
 import { FeaturedHomestays } from '@/components/FeaturedHomestays';
 import { ProvinceSection } from '@/components/ProvinceSection';
+import { MobileAppSection } from '@/components/MobileAppSection';
 import { YouTubeSection } from '@/components/YouTubeSection';
 import { BlogSection } from '@/components/BlogSection';
 import { Footer } from '@/components/Footer';
@@ -15,6 +16,7 @@ const Index = () => {
       <SearchSection />
       <FeaturedHomestays />
       <ProvinceSection />
+      <MobileAppSection />
       <YouTubeSection />
       <BlogSection />
       <Footer />
