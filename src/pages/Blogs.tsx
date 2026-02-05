@@ -4,69 +4,9 @@ import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+ import { blogsData } from '@/data/blogs';
 
-const blogs = [
-  {
-    id: 1,
-    title: 'Top 10 Homestays in the Himalayas for 2026',
-    excerpt: 'Discover the most breathtaking homestay experiences nestled in the majestic Himalayan mountains, from traditional Sherpa homes to modern eco-lodges.',
-    image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800',
-    author: 'Priya Sharma',
-    date: '2026-01-28',
-    readTime: '8 min read',
-    category: 'Travel Guide',
-  },
-  {
-    id: 2,
-    title: 'A Complete Guide to Nepali Cuisine',
-    excerpt: 'From dal bhat to momos, explore the rich culinary traditions of Nepal and learn what authentic dishes to expect at your homestay.',
-    image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800',
-    author: 'Rajan Thapa',
-    date: '2026-01-22',
-    readTime: '6 min read',
-    category: 'Food & Culture',
-  },
-  {
-    id: 3,
-    title: 'Trekking Tips for First-Time Visitors',
-    excerpt: 'Essential tips and preparation advice for your first trekking adventure in Nepal, including what to pack and how to acclimatize.',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800',
-    author: 'Tenzing Dorje',
-    date: '2026-01-15',
-    readTime: '10 min read',
-    category: 'Adventure',
-  },
-  {
-    id: 4,
-    title: 'Cultural Etiquette: Respecting Nepali Traditions',
-    excerpt: 'Learn the do\'s and don\'ts of visiting Nepali homes and communities. Understanding local customs enhances your travel experience.',
-    image: 'https://images.unsplash.com/photo-1558799401-1dcba79f4c42?w=800',
-    author: 'Maya Gurung',
-    date: '2026-01-10',
-    readTime: '5 min read',
-    category: 'Culture',
-  },
-  {
-    id: 5,
-    title: 'Best Time to Visit Nepal: A Seasonal Guide',
-    excerpt: 'Plan your perfect trip with our comprehensive guide to Nepal\'s seasons, festivals, and weather patterns throughout the year.',
-    image: 'https://images.unsplash.com/photo-1533130061792-64b345e4a833?w=800',
-    author: 'Arjun Rai',
-    date: '2026-01-05',
-    readTime: '7 min read',
-    category: 'Travel Tips',
-  },
-  {
-    id: 6,
-    title: 'Sustainable Tourism: How Homestays Help Communities',
-    excerpt: 'Discover how choosing homestays over hotels directly benefits local families and contributes to sustainable tourism in Nepal.',
-    image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800',
-    author: 'Sita Tamang',
-    date: '2025-12-28',
-    readTime: '6 min read',
-    category: 'Sustainability',
-  },
-];
+ const blogs = blogsData;
 
 const Blogs = () => {
   return (
@@ -128,10 +68,12 @@ const Blogs = () => {
                 {blogs[0].readTime}
               </span>
             </div>
-            <Button className="group">
-              Read More
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
+             <Link to={`/blog/${blogs[0].slug}`}>
+               <Button className="group">
+                 Read More
+                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+               </Button>
+             </Link>
           </div>
         </motion.div>
       </section>
@@ -140,8 +82,8 @@ const Blogs = () => {
       <section className="section-container py-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogs.slice(1).map((blog, index) => (
-            <motion.article
-              key={blog.id}
+             <Link key={blog.id} to={`/blog/${blog.slug}`}>
+               <motion.article
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -175,6 +117,7 @@ const Blogs = () => {
                 </div>
               </div>
             </motion.article>
+             </Link>
           ))}
         </div>
       </section>

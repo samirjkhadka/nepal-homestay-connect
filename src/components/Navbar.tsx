@@ -1,9 +1,11 @@
-import { useState } from 'react';
+ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, ChevronDown } from 'lucide-react';
+ import { Menu, X, Globe, ChevronDown, Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
+ import { useTheme } from '@/components/ThemeProvider';
+ 
 const navItems = [
   { name: 'Home', href: '/' },
   { name: 'Search', href: '/search' },
@@ -22,6 +24,18 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+   const { theme, setTheme } = useTheme();
+   const [isDark, setIsDark] = useState(false);
+ 
+   useEffect(() => {
+     const root = document.documentElement;
+     setIsDark(root.classList.contains('dark'));
+   }, [theme]);
+ 
+   const toggleTheme = () => {
+     setTheme(isDark ? 'light' : 'dark');
+     setIsDark(!isDark);
+   };
 
   return (
     <motion.nav
@@ -63,6 +77,39 @@ export function Navbar() {
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-4">
+             {/* Theme Toggle */}
+             <motion.button
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={toggleTheme}
+               className="p-2 rounded-lg hover:bg-muted transition-colors"
+               aria-label="Toggle theme"
+             >
+               <AnimatePresence mode="wait" initial={false}>
+                 {isDark ? (
+                   <motion.div
+                     key="sun"
+                     initial={{ rotate: -90, opacity: 0 }}
+                     animate={{ rotate: 0, opacity: 1 }}
+                     exit={{ rotate: 90, opacity: 0 }}
+                     transition={{ duration: 0.2 }}
+                   >
+                     <Sun className="w-5 h-5 text-accent" />
+                   </motion.div>
+                 ) : (
+                   <motion.div
+                     key="moon"
+                     initial={{ rotate: 90, opacity: 0 }}
+                     animate={{ rotate: 0, opacity: 1 }}
+                     exit={{ rotate: -90, opacity: 0 }}
+                     transition={{ duration: 0.2 }}
+                   >
+                     <Moon className="w-5 h-5 text-muted-foreground" />
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+             </motion.button>
+ 
             {/* Language Selector */}
             <div className="relative">
               <button
@@ -101,12 +148,16 @@ export function Navbar() {
             </div>
 
             {/* Auth Buttons */}
-            <Button variant="ghost" className="font-medium">
-              Sign In
-            </Button>
-            <Button className="font-medium bg-primary hover:bg-primary/90">
-              Sign Up
-            </Button>
+             <Link to="/signin">
+               <Button variant="ghost" className="font-medium">
+                 Sign In
+               </Button>
+             </Link>
+             <Link to="/signup">
+               <Button className="font-medium bg-primary hover:bg-primary/90">
+                 Sign Up
+               </Button>
+             </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -149,6 +200,12 @@ export function Navbar() {
               <div className="pt-4 border-t border-border space-y-3">
                 {/* Mobile Language Selector */}
                 <div className="flex items-center gap-2">
+                   <button
+                     onClick={toggleTheme}
+                     className="p-2 rounded-lg hover:bg-muted transition-colors mr-2"
+                   >
+                     {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                   </button>
                   <Globe className="w-4 h-4 text-muted-foreground" />
                   <select
                     value={currentLang.code}
@@ -164,12 +221,16 @@ export function Navbar() {
                 </div>
                 
                 <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1">
-                    Sign In
-                  </Button>
-                  <Button className="flex-1">
-                    Sign Up
-                  </Button>
+                   <Link to="/signin" className="flex-1">
+                     <Button variant="outline" className="w-full" onClick={() => setIsOpen(false)}>
+                       Sign In
+                     </Button>
+                   </Link>
+                   <Link to="/signup" className="flex-1">
+                     <Button className="w-full" onClick={() => setIsOpen(false)}>
+                       Sign Up
+                     </Button>
+                   </Link>
                 </div>
               </div>
             </div>
