@@ -2,8 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
- import { ThemeProvider } from "@/components/ThemeProvider";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { PageTransition } from "@/components/PageTransition";
 import Index from "./pages/Index";
 import HomestayDetail from "./pages/HomestayDetail";
 import Search from "./pages/Search";
@@ -33,45 +35,53 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/homestay/:id" element={<PageTransition><HomestayDetail /></PageTransition>} />
+        <Route path="/homestays" element={<PageTransition><Homestays /></PageTransition>} />
+        <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
+        <Route path="/packages" element={<PageTransition><Packages /></PageTransition>} />
+        <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
+        <Route path="/blog/:slug" element={<PageTransition><BlogDetail /></PageTransition>} />
+        <Route path="/about" element={<PageTransition><AboutUs /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+        <Route path="/team" element={<PageTransition><Team /></PageTransition>} />
+        <Route path="/careers" element={<PageTransition><Careers /></PageTransition>} />
+        <Route path="/press" element={<PageTransition><Press /></PageTransition>} />
+        <Route path="/destinations" element={<PageTransition><Destinations /></PageTransition>} />
+        <Route path="/experiences" element={<PageTransition><Experiences /></PageTransition>} />
+        <Route path="/help" element={<PageTransition><Help /></PageTransition>} />
+        <Route path="/safety" element={<PageTransition><Safety /></PageTransition>} />
+        <Route path="/cancellation" element={<PageTransition><Cancellation /></PageTransition>} />
+        <Route path="/faqs" element={<PageTransition><FAQs /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+        <Route path="/cookies" element={<PageTransition><Cookies /></PageTransition>} />
+        <Route path="/signin" element={<PageTransition><SignIn /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
+        <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
+        <Route path="/verify-otp" element={<PageTransition><VerifyOTP /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-     <ThemeProvider>
-       <TooltipProvider>
-         <Toaster />
-         <Sonner />
-         <BrowserRouter>
-           <Routes>
-             <Route path="/" element={<Index />} />
-             <Route path="/homestay/:id" element={<HomestayDetail />} />
-             <Route path="/homestays" element={<Homestays />} />
-             <Route path="/search" element={<Search />} />
-             <Route path="/packages" element={<Packages />} />
-             <Route path="/blogs" element={<Blogs />} />
-             <Route path="/blog/:slug" element={<BlogDetail />} />
-             <Route path="/about" element={<AboutUs />} />
-             <Route path="/contact" element={<Contact />} />
-             <Route path="/team" element={<Team />} />
-             <Route path="/careers" element={<Careers />} />
-             <Route path="/press" element={<Press />} />
-             <Route path="/destinations" element={<Destinations />} />
-             <Route path="/experiences" element={<Experiences />} />
-             <Route path="/help" element={<Help />} />
-             <Route path="/safety" element={<Safety />} />
-             <Route path="/cancellation" element={<Cancellation />} />
-             <Route path="/faqs" element={<FAQs />} />
-             <Route path="/privacy" element={<Privacy />} />
-             <Route path="/terms" element={<Terms />} />
-             <Route path="/cookies" element={<Cookies />} />
-             <Route path="/signin" element={<SignIn />} />
-             <Route path="/signup" element={<SignUp />} />
-             <Route path="/forgot-password" element={<ForgotPassword />} />
-             <Route path="/verify-otp" element={<VerifyOTP />} />
-             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-             <Route path="*" element={<NotFound />} />
-           </Routes>
-         </BrowserRouter>
-       </TooltipProvider>
-     </ThemeProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
