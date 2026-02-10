@@ -1,40 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import hero1 from '@/assets/hero-1.jpg';
-import hero2 from '@/assets/hero-2.jpg';
-import hero3 from '@/assets/hero-3.jpg';
+import { ChevronLeft, ChevronRight, Star, MapPin, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getAllHomestays } from '@/data/homestays';
 
-const slides = [
-  {
-    image: hero1,
-    title: 'Experience Authentic Nepal',
-    subtitle: 'Stay with local families in the heart of the Himalayas',
-  },
-  {
-    image: hero2,
-    title: 'Discover Mountain Villages',
-    subtitle: 'Immerse yourself in rich cultural traditions',
-  },
-  {
-    image: hero3,
-    title: 'Warm Nepali Hospitality',
-    subtitle: 'Feel at home in traditional homestays',
-  },
-];
+const topHomestays = getAllHomestays()
+  .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+  .slice(0, 4);
 
 export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+      setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + topHomestays.length) % topHomestays.length);
+  const homestay = topHomestays[currentSlide];
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -49,18 +35,17 @@ export function HeroSection() {
           className="absolute inset-0"
         >
           <img
-            src={slides[currentSlide].image}
-            alt={slides[currentSlide].title}
+            src={homestay.images[0]}
+            alt={homestay.name}
             className="w-full h-full object-cover"
           />
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/70" />
         </motion.div>
       </AnimatePresence>
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center justify-center text-center">
-        <div className="section-container">
+      <div className="relative z-10 h-full flex items-end pb-32 md:pb-36">
+        <div className="section-container w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
@@ -68,32 +53,76 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.6 }}
-              className="max-w-4xl mx-auto"
+              className="max-w-2xl"
             >
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 mb-4"
+              >
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-white text-sm font-medium">
+                  {homestay.rating} · {homestay.reviews} reviews
+                </span>
+                {homestay.host.isSuperhost && (
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full text-white">
+                    Superhost
+                  </span>
+                )}
+              </motion.div>
+
               <motion.h1
-                className="font-display text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-lg"
+                className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 drop-shadow-lg"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3 }}
               >
-                {slides[currentSlide].title}
+                {homestay.name}
               </motion.h1>
-              <motion.p
-                className="text-xl md:text-2xl text-white/90 mb-8 drop-shadow-md"
+
+              <motion.div
+                className="flex flex-wrap items-center gap-4 text-white/90 mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                {slides[currentSlide].subtitle}
+                <span className="flex items-center gap-1.5 text-lg">
+                  <MapPin className="w-5 h-5" />
+                  {homestay.location}, {homestay.province}
+                </span>
+                <span className="flex items-center gap-1.5 text-lg">
+                  <Users className="w-5 h-5" />
+                  Up to {homestay.maxGuests} guests
+                </span>
+              </motion.div>
+
+              <motion.p
+                className="text-lg text-white/80 mb-6 line-clamp-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                {homestay.description}
               </motion.p>
+
               <motion.div
+                className="flex items-center gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
               >
-                <button className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg hover:bg-primary/90 transition-all hover:scale-105 shadow-lg">
-                  Explore Homestays
-                </button>
+                <Link
+                  to={`/homestay/${homestay.id}`}
+                  className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold text-lg hover:bg-primary/90 transition-all hover:scale-105 shadow-lg"
+                >
+                  Book Now
+                </Link>
+                <span className="text-white text-2xl font-bold">
+                  NPR {homestay.pricePerNight.toLocaleString()}
+                  <span className="text-base font-normal text-white/70"> / night</span>
+                </span>
               </motion.div>
             </motion.div>
           </AnimatePresence>
@@ -114,16 +143,16 @@ export function HeroSection() {
         <ChevronRight className="w-6 h-6 text-white" />
       </button>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-        {slides.map((_, index) => (
+      {/* Slide Indicators with homestay thumbnails */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        {topHomestays.map((h, index) => (
           <button
-            key={index}
+            key={h.id}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
+            className={`transition-all rounded-full ${
               index === currentSlide
-                ? 'bg-white w-8'
-                : 'bg-white/50 hover:bg-white/70'
+                ? 'w-10 h-3 bg-white'
+                : 'w-3 h-3 bg-white/50 hover:bg-white/70'
             }`}
           />
         ))}
@@ -131,7 +160,7 @@ export function HeroSection() {
 
       {/* Scroll Indicator */}
       <motion.div
-        className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20"
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20"
         animate={{ y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 1.5 }}
       >

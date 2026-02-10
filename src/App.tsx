@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageTransition } from "@/components/PageTransition";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import HomestayDetail from "./pages/HomestayDetail";
 import Search from "./pages/Search";
@@ -38,6 +39,8 @@ const queryClient = new QueryClient();
 function AnimatedRoutes() {
   const location = useLocation();
   return (
+    <>
+    <ScrollToTop />
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
@@ -68,6 +71,7 @@ function AnimatedRoutes() {
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
+    </>
   );
 }
 
