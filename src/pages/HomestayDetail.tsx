@@ -18,12 +18,16 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { AmenitiesList } from '@/components/AmenitiesList';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { BookingCard } from '@/components/BookingCard';
+import { HostProfile } from '@/components/HostProfile';
+import { LocationSection } from '@/components/LocationSection';
+import { NearbyHomestays } from '@/components/NearbyHomestays';
 import { Footer } from '@/components/Footer';
-import { getHomestayById } from '@/data/homestays';
+import { getHomestayById, getNearbyHomestays } from '@/data/homestays';
 
 export default function HomestayDetail() {
   const { id } = useParams<{ id: string }>();
   const homestay = getHomestayById(id || 'mountain-view-retreat') || getHomestayById('mountain-view-retreat')!;
+  const nearbyHomestays = getNearbyHomestays(id || 'mountain-view-retreat');
 
   return (
     <div className="min-h-screen bg-background">
@@ -174,6 +178,16 @@ export default function HomestayDetail() {
               {/* Amenities */}
               <AmenitiesList amenities={homestay.amenities as any} />
 
+              {/* Host Profile */}
+              <HostProfile host={homestay.host} />
+
+              {/* Location & Directions */}
+              <LocationSection
+                location={homestay.location}
+                province={homestay.province}
+                coordinates={homestay.coordinates}
+              />
+
               {/* Reviews */}
               <ReviewsSection
                 reviews={homestay.reviewsList}
@@ -192,6 +206,9 @@ export default function HomestayDetail() {
               />
             </div>
           </div>
+
+          {/* Nearby Homestays */}
+          <NearbyHomestays homestays={nearbyHomestays} />
         </div>
       </main>
 
