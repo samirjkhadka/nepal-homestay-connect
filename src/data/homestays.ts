@@ -43,6 +43,12 @@ export interface Homestay {
     comment: string;
     helpful: number;
   }[];
+  itinerary: {
+    day: number;
+    title: string;
+    description: string;
+    icon: string;
+  }[];
   bookedDates: string[];
 }
 
@@ -82,6 +88,12 @@ Experience village life, join us for morning yoga sessions, or simply relax on t
       { id: 2, author: 'James Chen', avatar: '', date: 'December 2025', rating: 5, comment: 'The perfect escape from the busy tourist areas. Peaceful, authentic, and the sunrise views of the Annapurna range are unforgettable. Highly recommend the cooking class!', helpful: 18 },
       { id: 3, author: 'Emma Watson', avatar: '', date: 'November 2025', rating: 5, comment: 'We stayed for 4 nights and didnt want to leave. The hospitality is genuine, the food is incredible, and Deepak knows all the best hiking trails. Book this place!', helpful: 31 },
     ],
+    itinerary: [
+      { day: 1, title: 'Arrival & Settle In', description: 'Arrive in Sarangkot, enjoy welcome tea on the terrace with panoramic Himalayan views. Evening orientation walk around the village.', icon: 'sunrise' },
+      { day: 2, title: 'Sunrise & Mountain Yoga', description: 'Wake early for a stunning sunrise over the Annapurna range. Morning yoga session followed by a traditional Gurung breakfast.', icon: 'mountain' },
+      { day: 3, title: 'Village Hike & Cooking Class', description: 'Guided hike to nearby viewpoints through rhododendron forests. Afternoon cooking class with the host family – learn to make dal bhat and momo.', icon: 'hike' },
+      { day: 4, title: 'Cultural Immersion & Farewell', description: 'Visit local farms and learn about organic agriculture. Farewell dinner with traditional music and stories from the mountains.', icon: 'culture' },
+    ],
     bookedDates: ['2026-02-10', '2026-02-11', '2026-02-12', '2026-02-15', '2026-02-16', '2026-02-20', '2026-02-21', '2026-02-22', '2026-02-23'],
   },
   'traditional-gurung-house': {
@@ -117,6 +129,11 @@ We offer home-cooked organic meals using vegetables from our garden, cultural pr
     reviewsList: [
       { id: 1, author: 'Thomas Berg', avatar: '', date: 'January 2026', rating: 5, comment: 'Maya and her family are incredible hosts. The cultural evening with traditional dance was a highlight of our trip. The food was amazing and plentiful!', helpful: 19 },
       { id: 2, author: 'Lisa Wong', avatar: '', date: 'December 2025', rating: 4, comment: 'Beautiful location, authentic experience. The trek to get here is worth it. Only wish we could have stayed longer. Will definitely return!', helpful: 14 },
+    ],
+    itinerary: [
+      { day: 1, title: 'Welcome to Ghandruk', description: 'Arrive after a scenic trek, settle into the traditional stone house. Evening chai with mountain views and introduction to Gurung culture.', icon: 'mountain' },
+      { day: 2, title: 'Gurung Heritage Walk', description: 'Guided village walk visiting the Gurung museum, ancient water mills, and local artisan workshops. Learn traditional weaving techniques.', icon: 'learn' },
+      { day: 3, title: 'Cultural Evening & Dance', description: 'Join a traditional Gurung dance lesson with Maya. Evening cultural performance with music, dance, and storytelling around the fire.', icon: 'culture' },
     ],
     bookedDates: ['2026-02-05', '2026-02-06', '2026-02-07', '2026-02-14', '2026-02-18', '2026-02-19'],
   },
@@ -154,6 +171,11 @@ Wake up early to witness the spectacular sunrise painting the snow peaks in gold
       { id: 1, author: 'Amanda Foster', avatar: '', date: 'January 2026', rating: 5, comment: 'The sunrise here is simply unbelievable. Eight Himalayan peaks visible from the terrace! Bikash is incredibly knowledgeable about the mountains and local ecology.', helpful: 32 },
       { id: 2, author: 'Robert Kim', avatar: '', date: 'December 2025', rating: 5, comment: 'Love the sustainable approach. Great food, comfortable rooms, and the views are world-class. The guided nature walk was educational and enjoyable.', helpful: 21 },
     ],
+    itinerary: [
+      { day: 1, title: 'Arrival & Sunset Views', description: 'Check in and explore the eco-lodge grounds. Watch a spectacular sunset paint the Himalayan peaks in gold from the rooftop terrace.', icon: 'sunrise' },
+      { day: 2, title: 'Sunrise & Permaculture Tour', description: 'Early morning sunrise viewing of 8 Himalayan peaks. Tour the organic permaculture garden and learn about sustainable living with Bikash.', icon: 'nature' },
+      { day: 3, title: 'Nature Photography Walk', description: 'Guided photography walk through rhododendron forests. Visit ancient temples and capture the beauty of the Himalayan landscape.', icon: 'photo' },
+    ],
     bookedDates: ['2026-02-08', '2026-02-09', '2026-02-13', '2026-02-14', '2026-02-25', '2026-02-26', '2026-02-27'],
   },
   'tharu-cultural-homestay': {
@@ -189,6 +211,11 @@ We offer cultural experiences including Tharu stick dance performances, village 
     reviewsList: [
       { id: 1, author: 'Sophie Laurent', avatar: '', date: 'January 2026', rating: 5, comment: 'The Tharu dance performance was magical! Ram and his family are wonderful hosts. The jungle safari arranged by them was excellent value.', helpful: 16 },
       { id: 2, author: 'Michael Torres', avatar: '', date: 'November 2025', rating: 4, comment: 'Great cultural experience and perfect location for Chitwan. The food was delicious and different from typical Nepali food. Basic but authentic accommodation.', helpful: 11 },
+    ],
+    itinerary: [
+      { day: 1, title: 'Tharu Welcome', description: 'Arrive and settle into the traditional mud house. Afternoon village walk to meet local artisans. Evening Tharu stick dance performance.', icon: 'culture' },
+      { day: 2, title: 'Jungle Safari Adventure', description: 'Full-day Chitwan National Park safari – spot rhinos, deer, and exotic birds. Canoe ride on the Rapti River to see crocodiles.', icon: 'nature' },
+      { day: 3, title: 'Fishing & Cooking', description: 'Morning fishing trip on the river. Learn to cook traditional Tharu dishes like dhikri and ghonghi with your fresh catch.', icon: 'food' },
     ],
     bookedDates: ['2026-02-03', '2026-02-04', '2026-02-17', '2026-02-24'],
   },
@@ -226,6 +253,11 @@ We offer rowing boat trips on the lake, guided bird watching (over 100 species s
       { id: 1, author: 'David Palmer', avatar: '', date: 'January 2026', rating: 5, comment: 'Heaven on earth! So peaceful after the chaos of Kathmandu. Sunita is a wonderful host and her cooking is incredible. The sunrise boat ride was magical.', helpful: 22 },
       { id: 2, author: 'Maria Gonzalez', avatar: '', date: 'December 2025', rating: 5, comment: 'We extended our stay twice! The cottage is simple but has everything you need. The lake views are breathtaking and it is so quiet and peaceful.', helpful: 17 },
     ],
+    itinerary: [
+      { day: 1, title: 'Lakeside Arrival', description: 'Settle into the cottage and take a peaceful evening stroll along the lakeshore. Watch the sunset reflect off Begnas Lake.', icon: 'sunrise' },
+      { day: 2, title: 'Bird Watching & Boat Ride', description: 'Early morning bird watching with Sunita – spot over 100 species. Afternoon rowing boat trip across the serene lake.', icon: 'nature' },
+      { day: 3, title: 'Village Walk & Local Cuisine', description: 'Walk through nearby rice terraces and villages. Cooking class featuring traditional lakeside recipes with fresh local ingredients.', icon: 'food' },
+    ],
     bookedDates: ['2026-02-06', '2026-02-07', '2026-02-08', '2026-02-12', '2026-02-13', '2026-02-28'],
   },
   'ancient-newari-house': {
@@ -261,6 +293,11 @@ We offer cultural immersion experiences including pottery making with local mast
     reviewsList: [
       { id: 1, author: 'Jennifer Adams', avatar: '', date: 'January 2026', rating: 5, comment: 'Staying here was like living in a museum, but with all the comforts! Rajendra is incredibly knowledgeable about Newari culture. The pottery class was unforgettable.', helpful: 28 },
       { id: 2, author: 'Hans Mueller', avatar: '', date: 'December 2025', rating: 5, comment: 'Exceptional heritage property. The wood carvings are stunning and the location is perfect. Walking through the ancient streets at dawn was magical.', helpful: 19 },
+    ],
+    itinerary: [
+      { day: 1, title: 'Heritage Welcome', description: 'Arrive at the 400-year-old Newari house. Guided heritage walk through Bhaktapur\'s ancient streets and Dattatreya Square. Evening rooftop tea with temple views.', icon: 'learn' },
+      { day: 2, title: 'Pottery & Artisan Workshops', description: 'Morning pottery-making class with master artisans in Pottery Square. Afternoon visit to woodcarving and thangka painting workshops.', icon: 'culture' },
+      { day: 3, title: 'Newari Feast & Temple Tour', description: 'Cooking class to prepare a traditional Newari bhoj (feast). Visit Nyatapola Temple and Bhairavnath Temple. Farewell dinner on the rooftop.', icon: 'food' },
     ],
     bookedDates: ['2026-02-09', '2026-02-10', '2026-02-11', '2026-02-16', '2026-02-17', '2026-02-21', '2026-02-22'],
   },
