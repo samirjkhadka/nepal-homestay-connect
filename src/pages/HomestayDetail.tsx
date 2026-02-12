@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { PhotoGallery } from '@/components/PhotoGallery';
+import { ItinerarySection } from '@/components/ItinerarySection';
 import { AmenitiesList } from '@/components/AmenitiesList';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { BookingCard } from '@/components/BookingCard';
@@ -174,6 +175,9 @@ export default function HomestayDetail() {
                   {homestay.longDescription}
                 </div>
               </motion.div>
+
+              {/* What to Expect */}
+              <ItinerarySection itinerary={homestay.itinerary} />
 
               {/* Amenities */}
               <AmenitiesList amenities={homestay.amenities as any} />
