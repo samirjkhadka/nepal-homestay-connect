@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -8,7 +9,8 @@ import {
   Instagram, 
   Youtube, 
   Twitter,
-  Send
+  Send,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
