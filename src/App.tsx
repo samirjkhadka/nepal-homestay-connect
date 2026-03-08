@@ -5,14 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageTransition } from "@/components/PageTransition";
 import { ScrollToTop } from "@/components/ScrollToTop";
+
+// Public pages
 import Index from "./pages/Index";
 import HomestayDetail from "./pages/HomestayDetail";
 import Search from "./pages/Search";
 import Packages from "./pages/Packages";
 import Blogs from "./pages/Blogs";
- import BlogDetail from "./pages/BlogDetail";
+import BlogDetail from "./pages/BlogDetail";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import Team from "./pages/Team";
@@ -34,6 +39,20 @@ import ForgotPassword from "./pages/ForgotPassword";
 import VerifyOTP from "./pages/VerifyOTP";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminHomestays from "./pages/admin/AdminHomestays";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
+
+// Host pages
+import HostDashboard from "./pages/host/HostDashboard";
+
+// Guest pages
+import GuestDashboard from "./pages/guest/GuestDashboard";
+
 const queryClient = new QueryClient();
 
 function AnimatedRoutes() {
@@ -43,6 +62,7 @@ function AnimatedRoutes() {
     <ScrollToTop />
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Public Routes */}
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route path="/homestay/:id" element={<PageTransition><HomestayDetail /></PageTransition>} />
         <Route path="/homestays" element={<PageTransition><Homestays /></PageTransition>} />
@@ -68,6 +88,23 @@ function AnimatedRoutes() {
         <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/verify-otp" element={<PageTransition><VerifyOTP /></PageTransition>} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/homestays" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminHomestays /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/bookings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminBookings /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAnalytics /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminSettings /></DashboardLayout></ProtectedRoute>} />
+
+        {/* Host Routes */}
+        <Route path="/host" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostDashboard /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/*" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostDashboard /></DashboardLayout></ProtectedRoute>} />
+
+        {/* Guest Routes */}
+        <Route path="/guest" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestDashboard /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/guest/*" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestDashboard /></DashboardLayout></ProtectedRoute>} />
+
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
@@ -78,13 +115,15 @@ function AnimatedRoutes() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
