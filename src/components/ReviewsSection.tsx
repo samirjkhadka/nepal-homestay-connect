@@ -116,6 +116,7 @@ export function ReviewsSection({ reviews, averageRating, totalReviews }: Reviews
       {/* Show All Reviews Button */}
       <div className="mt-8">
         <Button variant="outline" size="lg" className="font-medium">
+          <Eye className="w-4 h-4 mr-2" />
           Show all {totalReviews} reviews
         </Button>
       </div>

@@ -254,6 +254,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
         disabled={hasUnavailableDatesInRange}
         className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 rounded-xl disabled:opacity-50"
       >
+        <CreditCard className="w-5 h-5 mr-2" />
         Reserve Now
       </Button>
 

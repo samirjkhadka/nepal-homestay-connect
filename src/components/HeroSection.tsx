@@ -198,8 +198,9 @@ export function HeroSection() {
                 {/* CTA */}
                 <Link
                   to={`/homestay/${homestay.id}`}
-                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm md:text-base hover:bg-primary/90 transition-all hover:scale-105 shadow-lg sm:ml-auto"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm md:text-base hover:bg-primary/90 transition-all hover:scale-105 shadow-lg sm:ml-auto"
                 >
+                  <Eye className="w-4 h-4" />
                   View & Book
                 </Link>
               </div>
