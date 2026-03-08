@@ -40,7 +40,7 @@ export function SearchSection() {
   };
 
   return (
-    <section className="relative z-30 -mt-16 mb-12 md:mb-16">
+    <section className="relative z-30 mt-6 md:mt-10 mb-12 md:mb-16">
       {/* Decorative background */}
       <div className="absolute inset-0 -top-8 -bottom-8 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent" />
