@@ -1,88 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, MapPin, Users, Search, Calendar, User, Eye } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getAllHomestays } from '@/data/homestays';
 
 const topHomestays = getAllHomestays()
   .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
   .slice(0, 4);
 
-function HeroSearch() {
-  const navigate = useNavigate();
-  const [location, setLocation] = useState('');
-  const [checkIn, setCheckIn] = useState('');
-  const [guests, setGuests] = useState('2');
-
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (location) params.set('location', location);
-    if (checkIn) params.set('checkIn', checkIn);
-    if (guests) params.set('guests', guests);
-    navigate(`/search?${params.toString()}`);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8, duration: 0.5 }}
-      className="w-full max-w-4xl mx-auto"
-    >
-      <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-2 md:p-3">
-        <div className="flex flex-col md:flex-row items-stretch gap-2">
-          {/* Location */}
-          <div className="flex-1 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
-            <MapPin className="w-5 h-5 text-white/70 shrink-0" />
-            <input
-              type="text"
-              placeholder="Where to?"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="bg-transparent text-white placeholder:text-white/50 text-sm w-full outline-none"
-            />
-          </div>
-
-          {/* Date */}
-          <div className="flex-1 flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3">
-            <Calendar className="w-5 h-5 text-white/70 shrink-0" />
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="bg-transparent text-white text-sm w-full outline-none [color-scheme:dark]"
-            />
-          </div>
-
-          {/* Guests */}
-          <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-3 md:w-32">
-            <Users className="w-5 h-5 text-white/70 shrink-0" />
-            <select
-              value={guests}
-              onChange={(e) => setGuests(e.target.value)}
-              className="bg-transparent text-white text-sm w-full outline-none appearance-none"
-            >
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n} className="text-foreground bg-card">
-                  {n} {n === 1 ? 'Guest' : 'Guests'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Search Button */}
-          <button
-            onClick={handleSearch}
-            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 py-3 font-semibold transition-all hover:scale-[1.02] shrink-0"
-          >
-            <Search className="w-5 h-5" />
-            <span className="md:hidden lg:inline">Search</span>
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -207,8 +132,6 @@ export function HeroSection() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Search Overlay */}
-          <HeroSearch />
 
           {/* Bottom row: indicators */}
           <div className="flex items-center justify-between">
