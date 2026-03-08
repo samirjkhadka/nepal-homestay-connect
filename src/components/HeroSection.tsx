@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, MapPin, Users, Search, Calendar, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, MapPin, Users, Search, Calendar, User, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllHomestays } from '@/data/homestays';
 
