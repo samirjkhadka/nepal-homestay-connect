@@ -1,6 +1,6 @@
  import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
- import { Menu, X, Globe, ChevronDown, Moon, Sun } from 'lucide-react';
+ import { Menu, X, Globe, ChevronDown, Moon, Sun, LogIn, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -150,11 +150,13 @@ export function Navbar() {
             {/* Auth Buttons */}
              <Link to="/signin">
                <Button variant="ghost" className="font-medium">
+                 <LogIn className="w-4 h-4 mr-1" />
                  Sign In
                </Button>
              </Link>
              <Link to="/signup">
                <Button className="font-medium bg-primary hover:bg-primary/90">
+                 <UserPlus className="w-4 h-4 mr-1" />
                  Sign Up
                </Button>
              </Link>

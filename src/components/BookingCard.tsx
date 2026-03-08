@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarIcon, Users, Star, ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
+import { CalendarIcon, Users, Star, ChevronDown, ChevronUp, Check, AlertCircle, CreditCard } from 'lucide-react';
 import { format, differenceInDays, eachDayOfInterval, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -254,6 +254,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
         disabled={hasUnavailableDatesInRange}
         className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 rounded-xl disabled:opacity-50"
       >
+        <CreditCard className="w-5 h-5 mr-2" />
         Reserve Now
       </Button>
 

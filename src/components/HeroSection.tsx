@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, MapPin, Users, Search, Calendar, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, MapPin, Users, Search, Calendar, User, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllHomestays } from '@/data/homestays';
 
@@ -198,8 +198,9 @@ export function HeroSection() {
                 {/* CTA */}
                 <Link
                   to={`/homestay/${homestay.id}`}
-                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm md:text-base hover:bg-primary/90 transition-all hover:scale-105 shadow-lg sm:ml-auto"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm md:text-base hover:bg-primary/90 transition-all hover:scale-105 shadow-lg sm:ml-auto"
                 >
+                  <Eye className="w-4 h-4" />
                   View & Book
                 </Link>
               </div>
