@@ -197,9 +197,15 @@ export function Footer() {
       <div className="border-t border-background/10">
         <div className="section-container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-background/60 text-sm">
-              © 2026 Nepali Homestays. All rights reserved.
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-background/60 text-sm">
+                © 2026 Nepali Homestays. All rights reserved.
+              </p>
+              <div className="flex items-center gap-1.5 text-background/50 text-sm">
+                <Eye className="w-4 h-4" />
+                <span>{visitCount.toLocaleString()} visit{visitCount !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
             
             {/* Social Links */}
             <div className="flex items-center gap-4">
