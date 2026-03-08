@@ -207,8 +207,6 @@ export function HeroSection() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Search Overlay */}
-          <HeroSearch />
 
           {/* Bottom row: indicators */}
           <div className="flex items-center justify-between">
