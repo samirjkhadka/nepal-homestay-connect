@@ -48,6 +48,15 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const [visitCount, setVisitCount] = useState(0);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('nepali-homestays-visits');
+    const count = stored ? parseInt(stored, 10) + 1 : 1;
+    localStorage.setItem('nepali-homestays-visits', count.toString());
+    setVisitCount(count);
+  }, []);
+
   return (
     <footer className="bg-foreground text-background">
       {/* Newsletter Section */}
