@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, ThumbsUp, MessageCircle } from 'lucide-react';
+import { Star, ThumbsUp, MessageCircle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Review {
