@@ -100,7 +100,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       {/* Price and Rating */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <span className="text-2xl font-bold text-foreground">{format(pricePerNight)}</span>
+          <span className="text-2xl font-bold text-foreground">{fmtPrice(pricePerNight)}</span>
           <span className="text-muted-foreground"> /night</span>
         </div>
         <div className="flex items-center gap-1">
@@ -270,16 +270,16 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       {nights > 0 && !hasUnavailableDatesInRange && (
         <div className="mt-6 pt-6 border-t border-border space-y-3">
           <div className="flex justify-between text-foreground">
-            <span className="underline">{format(pricePerNight)} × {nights} night{nights > 1 ? 's' : ''}</span>
-            <span>{format(subtotal)}</span>
+            <span className="underline">{fmtPrice(pricePerNight)} × {nights} night{nights > 1 ? 's' : ''}</span>
+            <span>{fmtPrice(subtotal)}</span>
           </div>
           <div className="flex justify-between text-foreground">
             <span className="underline">Service fee</span>
-            <span>{format(serviceFee)}</span>
+            <span>{fmtPrice(serviceFee)}</span>
           </div>
           <div className="flex justify-between font-semibold text-foreground pt-3 border-t border-border">
             <span>Total</span>
-            <span>{format(total)}</span>
+            <span>{fmtPrice(total)}</span>
           </div>
         </div>
       )}
