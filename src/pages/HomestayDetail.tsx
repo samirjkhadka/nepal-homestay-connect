@@ -248,6 +248,7 @@ export default function HomestayDetail() {
         </div>
       </main>
 
+      <MobileStickyBar pricePerNight={homestay.pricePerNight} />
       <Footer />
     </div>
   );
