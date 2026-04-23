@@ -10,6 +10,12 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageTransition } from "@/components/PageTransition";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { CompareProvider } from "@/contexts/CompareContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
+import { CompareWidget } from "@/components/CompareWidget";
+import { PhrasebookButton } from "@/components/PhrasebookButton";
+import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 
 // Public pages
 import Index from "./pages/Index";
@@ -37,6 +43,9 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyOTP from "./pages/VerifyOTP";
+import Festivals from "./pages/Festivals";
+import TripPlanner from "./pages/TripPlanner";
+import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
 // Admin pages
@@ -88,6 +97,9 @@ function AnimatedRoutes() {
         <Route path="/signup" element={<PageTransition><SignUp /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/verify-otp" element={<PageTransition><VerifyOTP /></PageTransition>} />
+        <Route path="/festivals" element={<PageTransition><Festivals /></PageTransition>} />
+        <Route path="/trip-planner" element={<PageTransition><TripPlanner /></PageTransition>} />
+        <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />
@@ -116,13 +128,22 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
+        <CurrencyProvider>
+          <WishlistProvider>
+            <CompareProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <AnimatedRoutes />
+                  <CompareWidget />
+                  <PhrasebookButton />
+                  <WhatsAppWidget />
+                </BrowserRouter>
+              </TooltipProvider>
+            </CompareProvider>
+          </WishlistProvider>
+        </CurrencyProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
