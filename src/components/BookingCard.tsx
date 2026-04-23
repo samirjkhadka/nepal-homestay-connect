@@ -29,7 +29,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkOutOpen, setCheckOutOpen] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
-  const { format } = useCurrency();
+  const { format: fmtPrice } = useCurrency();
 
   // Get unavailable dates for this homestay
   const unavailableDates = useMemo(() => {
