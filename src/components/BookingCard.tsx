@@ -299,6 +299,12 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
           <span>Secure payment process</span>
         </div>
       </div>
+
+      <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
+        <DialogContent className="max-w-md p-0 bg-transparent border-0 shadow-none">
+          <ImpactReceipt nights={Math.max(1, nights)} onClose={() => setShowReceipt(false)} />
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
