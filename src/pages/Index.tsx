@@ -1,10 +1,11 @@
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { SearchSection } from '@/components/SearchSection';
+import { TrustStrip } from '@/components/TrustStrip';
 import { ImpactSection } from '@/components/ImpactSection';
 import { FeaturedHomestays } from '@/components/FeaturedHomestays';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
-import { ProvinceSection } from '@/components/ProvinceSection';
+import { InteractiveProvinceMap } from '@/components/InteractiveProvinceMap';
 import { MobileAppSection } from '@/components/MobileAppSection';
 import { YouTubeSection } from '@/components/YouTubeSection';
 import { BlogSection } from '@/components/BlogSection';
@@ -16,10 +17,11 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <SearchSection />
+      <TrustStrip />
       <ImpactSection />
       <FeaturedHomestays />
       <TestimonialsSection />
-      <ProvinceSection />
+      <InteractiveProvinceMap />
       <MobileAppSection />
       <YouTubeSection />
       <BlogSection />

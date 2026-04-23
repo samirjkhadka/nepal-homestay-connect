@@ -1,18 +1,19 @@
  import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
- import { Menu, X, Globe, ChevronDown, Moon, Sun, LogIn, UserPlus } from 'lucide-react';
+ import { Menu, X, Globe, ChevronDown, Moon, Sun, LogIn, UserPlus, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 
  import { useTheme } from '@/components/ThemeProvider';
  
 const navItems = [
   { name: 'Home', href: '/' },
   { name: 'Search', href: '/search' },
-  { name: 'Packages', href: '/packages' },
+  { name: 'Festivals', href: '/festivals' },
+  { name: 'Trip Planner', href: '/trip-planner' },
   { name: 'Blogs', href: '/blogs' },
-  { name: 'About Us', href: '/about' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'About', href: '/about' },
 ];
 
 const languages = [
@@ -109,6 +110,14 @@ export function Navbar() {
                  )}
                </AnimatePresence>
              </motion.button>
+
+            {/* Currency Switcher */}
+            <CurrencySwitcher />
+
+            {/* Wishlist */}
+            <Link to="/wishlist" aria-label="Wishlist" className="p-2 rounded-lg hover:bg-muted transition-colors">
+              <Heart className="w-5 h-5 text-foreground" />
+            </Link>
  
             {/* Language Selector */}
             <div className="relative">

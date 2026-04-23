@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getUnavailableDates } from '@/data/homestays';
 import { useParams } from 'react-router-dom';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ImpactReceipt } from '@/components/ImpactReceipt';
 
 interface BookingCardProps {
   pricePerNight: number;
@@ -25,6 +28,8 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
   const [showGuestPicker, setShowGuestPicker] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkOutOpen, setCheckOutOpen] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const { format: fmtPrice } = useCurrency();
 
   // Get unavailable dates for this homestay
   const unavailableDates = useMemo(() => {
@@ -83,6 +88,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       return;
     }
     toast.success('Booking request sent! The host will confirm shortly.');
+    setShowReceipt(true);
   };
 
   return (
@@ -94,9 +100,7 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       {/* Price and Rating */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <span className="text-2xl font-bold text-foreground">
-            NPR {pricePerNight.toLocaleString()}
-          </span>
+          <span className="text-2xl font-bold text-foreground">{fmtPrice(pricePerNight)}</span>
           <span className="text-muted-foreground"> /night</span>
         </div>
         <div className="flex items-center gap-1">
@@ -266,18 +270,16 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
       {nights > 0 && !hasUnavailableDatesInRange && (
         <div className="mt-6 pt-6 border-t border-border space-y-3">
           <div className="flex justify-between text-foreground">
-            <span className="underline">
-              NPR {pricePerNight.toLocaleString()} × {nights} night{nights > 1 ? 's' : ''}
-            </span>
-            <span>NPR {subtotal.toLocaleString()}</span>
+            <span className="underline">{fmtPrice(pricePerNight)} × {nights} night{nights > 1 ? 's' : ''}</span>
+            <span>{fmtPrice(subtotal)}</span>
           </div>
           <div className="flex justify-between text-foreground">
             <span className="underline">Service fee</span>
-            <span>NPR {serviceFee.toLocaleString()}</span>
+            <span>{fmtPrice(serviceFee)}</span>
           </div>
           <div className="flex justify-between font-semibold text-foreground pt-3 border-t border-border">
             <span>Total</span>
-            <span>NPR {total.toLocaleString()}</span>
+            <span>{fmtPrice(total)}</span>
           </div>
         </div>
       )}
@@ -297,6 +299,12 @@ export function BookingCard({ pricePerNight, rating, reviews, maxGuests }: Booki
           <span>Secure payment process</span>
         </div>
       </div>
+
+      <Dialog open={showReceipt} onOpenChange={setShowReceipt}>
+        <DialogContent className="max-w-md p-0 bg-transparent border-0 shadow-none">
+          <ImpactReceipt nights={Math.max(1, nights)} onClose={() => setShowReceipt(false)} />
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
