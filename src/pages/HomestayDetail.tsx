@@ -23,6 +23,16 @@ import { HostProfile } from '@/components/HostProfile';
 import { LocationSection } from '@/components/LocationSection';
 import { NearbyHomestays } from '@/components/NearbyHomestays';
 import { Footer } from '@/components/Footer';
+import { ExperienceBadges } from '@/components/ExperienceBadges';
+import { LocalExperiences } from '@/components/LocalExperiences';
+import { MeetCommunity } from '@/components/MeetCommunity';
+import { PriceTransparency } from '@/components/PriceTransparency';
+import { WeatherWidget } from '@/components/WeatherWidget';
+import { VillageStories } from '@/components/VillageStories';
+import { GuestPhotoWall } from '@/components/GuestPhotoWall';
+import { HostVideoIntro } from '@/components/HostVideoIntro';
+import { MobileStickyBar } from '@/components/MobileStickyBar';
+import { getBadgesFor } from '@/data/communityMock';
 import { getHomestayById, getNearbyHomestays } from '@/data/homestays';
 
 export default function HomestayDetail() {
@@ -83,6 +93,7 @@ export default function HomestayDetail() {
                 </button>
               </div>
             </div>
+            <ExperienceBadges badges={getBadgesFor(homestay.id)} showLabels className="mt-4" />
           </motion.div>
 
           {/* Photo Gallery */}
@@ -185,12 +196,33 @@ export default function HomestayDetail() {
               {/* Host Profile */}
               <HostProfile host={homestay.host} />
 
+              {/* Host video introduction */}
+              <HostVideoIntro hostName={homestay.host.name} image={homestay.images[0]} />
+
+              {/* Local experiences add-ons */}
+              <LocalExperiences />
+
+              {/* Meet the community */}
+              <MeetCommunity homestayId={homestay.id} />
+
+              {/* Price transparency */}
+              <PriceTransparency />
+
+              {/* Weather + best time to visit */}
+              <WeatherWidget />
+
               {/* Location & Directions */}
               <LocationSection
                 location={homestay.location}
                 province={homestay.province}
                 coordinates={homestay.coordinates}
               />
+
+              {/* Stories from the village */}
+              <VillageStories />
+
+              {/* Guest photo wall */}
+              <GuestPhotoWall images={homestay.images} />
 
               {/* Reviews */}
               <ReviewsSection
