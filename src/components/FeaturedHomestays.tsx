@@ -64,18 +64,29 @@ export function FeaturedHomestays() {
                 key={homestay.id}
                 variants={cardVariants}
                 whileHover={{ y: -8 }}
-                className="group bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300 border border-border"
+                className="group bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated hover:ring-2 hover:ring-primary/30 transition-all duration-300 border border-border"
               >
                 <Link to={`/homestay/${homestay.id}`} className="block">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img
                       src={homestay.images[0]}
                       alt={homestay.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
+                    {/* Ribbons */}
                     {index === 0 && (
-                      <div className="absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
-                        Featured
+                      <div className="absolute top-3 left-3 px-3 py-1 bg-gradient-warm text-primary-foreground text-xs font-bold rounded-full shadow-md uppercase tracking-wider">
+                        ★ Featured
+                      </div>
+                    )}
+                    {index === 1 && (
+                      <div className="absolute top-3 left-3 px-3 py-1 bg-secondary text-secondary-foreground text-xs font-bold rounded-full shadow-md uppercase tracking-wider">
+                        New
+                      </div>
+                    )}
+                    {index === 2 && (
+                      <div className="absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded-full shadow-md uppercase tracking-wider">
+                        Popular
                       </div>
                     )}
                     <div className="absolute top-3 right-3 flex gap-1.5">

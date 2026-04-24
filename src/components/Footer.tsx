@@ -59,6 +59,9 @@ export function Footer() {
 
   return (
     <footer className="bg-foreground text-background">
+      {/* Prayer-flag color strip */}
+      <div className="prayer-flag-strip h-1" aria-hidden />
+
       {/* Newsletter Section */}
       <div className="border-b border-background/10">
         <div className="section-container py-12">
@@ -104,7 +107,7 @@ export function Footer() {
                 Nepali Homestays
               </span>
             </div>
-            <p className="text-background/70 mb-6">
+            <p className="text-background/80 mb-6 leading-relaxed">
               Experience the warmth of Nepali hospitality. We connect travelers with authentic
               homestay experiences across Nepal's beautiful landscapes.
             </p>
@@ -134,7 +137,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-accent transition-colors"
+                    className="text-background/80 hover:text-accent transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -197,16 +200,19 @@ export function Footer() {
       <div className="border-t border-background/10">
         <div className="section-container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <p className="text-background/60 text-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <p className="text-background/70 text-sm">
                 © 2026 Nepali Homestays. All rights reserved.
               </p>
-              <div className="flex items-center gap-1.5 text-background/50 text-sm">
+              <div className="flex items-center gap-1.5 text-background/60 text-sm">
                 <Eye className="w-4 h-4" />
                 <span>{visitCount.toLocaleString()} visit{visitCount !== 1 ? 's' : ''}</span>
               </div>
+              <span className="text-background/70 text-sm flex items-center gap-1">
+                Made with <span className="text-red-400">❤</span> in Nepal 🇳🇵
+              </span>
             </div>
-            
+
             {/* Social Links */}
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => (
@@ -214,7 +220,7 @@ export function Footer() {
                   key={social.label}
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors tap-target"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />

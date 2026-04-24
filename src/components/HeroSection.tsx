@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getAllHomestays } from '@/data/homestays';
 
@@ -25,12 +25,12 @@ export function HeroSection() {
 
   return (
     <section className="relative h-screen min-h-[600px] max-h-[900px] md:max-h-none md:h-screen overflow-hidden">
-      {/* Background Images */}
+      {/* Background Images with Ken-Burns */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, scale: 1.08 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2 }}
           className="absolute inset-0"
@@ -38,12 +38,39 @@ export function HeroSection() {
           <img
             src={homestay.images[0]}
             alt={homestay.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover animate-ken-burns"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/45 to-transparent" />
         </motion.div>
       </AnimatePresence>
+
+      {/* Mountain silhouette at the bottom for depth */}
+      <svg
+        viewBox="0 0 1440 200"
+        preserveAspectRatio="none"
+        className="absolute bottom-0 left-0 w-full h-24 md:h-32 z-[5] pointer-events-none"
+        aria-hidden
+      >
+        <path
+          d="M0,200 L0,140 L120,80 L240,120 L360,40 L480,100 L600,30 L720,90 L840,50 L960,110 L1080,60 L1200,100 L1320,40 L1440,90 L1440,200 Z"
+          fill="hsl(0 0% 0% / 0.55)"
+        />
+        <path
+          d="M0,200 L0,170 L120,130 L240,160 L360,110 L480,150 L600,100 L720,140 L840,115 L960,155 L1080,120 L1200,150 L1320,105 L1440,140 L1440,200 Z"
+          fill="hsl(0 0% 0% / 0.75)"
+        />
+      </svg>
+
+      {/* Scroll indicator */}
+      <motion.div
+        animate={{ y: [0, 8, 0] }}
+        transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 text-white/70 hidden md:flex flex-col items-center gap-1 text-[10px] uppercase tracking-widest"
+      >
+        Scroll
+        <ChevronDown className="w-4 h-4" />
+      </motion.div>
 
       {/* Main Content */}
       <div className="relative z-10 h-full flex flex-col justify-end pb-8 md:pb-12">
@@ -74,7 +101,7 @@ export function HeroSection() {
               </div>
 
               {/* Title */}
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 md:mb-3 leading-tight drop-shadow-lg">
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 md:mb-3 leading-tight text-shadow-hero">
                 {homestay.name}
               </h1>
 
@@ -123,7 +150,7 @@ export function HeroSection() {
                 {/* CTA */}
                 <Link
                   to={`/homestay/${homestay.id}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm md:text-base hover:bg-primary/90 transition-all hover:scale-105 shadow-lg sm:ml-auto"
+                  className="btn-cta inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-warm text-primary-foreground rounded-xl font-semibold text-sm md:text-base shadow-lg sm:ml-auto tap-target"
                 >
                   <Eye className="w-4 h-4" />
                   View & Book
