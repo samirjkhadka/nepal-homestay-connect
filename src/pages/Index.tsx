@@ -11,6 +11,7 @@ import { YouTubeSection } from '@/components/YouTubeSection';
 import { BlogSection } from '@/components/BlogSection';
 import { PartnersSection } from '@/components/PartnersSection';
 import { Footer } from '@/components/Footer';
+import { SectionDivider } from '@/components/SectionDivider';
 
 const Index = () => {
   return (
@@ -20,7 +21,9 @@ const Index = () => {
       <SearchSection />
       <TrustStrip />
       <ImpactSection />
+      <SectionDivider variant="mountains" fill="hsl(var(--background))" className="-mt-px" />
       <FeaturedHomestays />
+      <SectionDivider variant="mandala" />
       <TestimonialsSection />
       <InteractiveProvinceMap />
       <MobileAppSection />
