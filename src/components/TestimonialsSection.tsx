@@ -84,8 +84,12 @@ export function TestimonialsSection() {
         </motion.div>
 
         <div className="max-w-3xl mx-auto">
-          <div className="relative bg-card rounded-3xl border border-border shadow-lg p-8 md:p-12 min-h-[320px] flex flex-col justify-center">
-            <Quote className="w-10 h-10 text-primary/20 absolute top-6 left-6 md:top-8 md:left-8" />
+          <div className="relative bg-card rounded-3xl border border-border shadow-lg p-8 md:p-12 min-h-[320px] flex flex-col justify-center overflow-hidden">
+            {/* Decorative oversized quote */}
+            <span className="absolute -top-6 -left-2 md:-top-8 md:-left-4 font-display text-[180px] md:text-[240px] leading-none text-primary/10 select-none pointer-events-none">
+              ❝
+            </span>
+            <Quote className="w-10 h-10 text-primary/30 absolute top-6 left-6 md:top-8 md:left-8" />
 
             <AnimatePresence mode="wait">
               <motion.div

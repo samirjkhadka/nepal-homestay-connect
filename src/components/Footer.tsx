@@ -209,7 +209,7 @@ export function Footer() {
                 <span>{visitCount.toLocaleString()} visit{visitCount !== 1 ? 's' : ''}</span>
               </div>
               <span className="text-background/70 text-sm flex items-center gap-1">
-                Made with <span className="text-red-400">❤</span> in Nepal 🇳🇵
+                Made with <span className="text-destructive">❤</span> in Nepal 🇳🇵
               </span>
             </div>
 

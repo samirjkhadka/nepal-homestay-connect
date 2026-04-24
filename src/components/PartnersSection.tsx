@@ -105,10 +105,12 @@ export function PartnersSection() {
                   {category.partners.map((partner) => (
                     <motion.div
                       key={partner.name}
-                      whileHover={{ y: -2 }}
-                      className="bg-background border border-border rounded-xl p-3 text-center hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                      whileHover={{ y: -3 }}
+                      className="relative bg-background border border-border rounded-xl p-3 text-center transition-all hover:shadow-md group/partner overflow-hidden"
                     >
-                      <div className="font-semibold text-sm text-foreground truncate">
+                      {/* Gradient border accent on hover */}
+                      <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-warm opacity-0 group-hover/partner:opacity-100 transition-opacity" />
+                      <div className="font-display font-semibold text-sm text-foreground truncate">
                         {partner.name}
                       </div>
                       <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
