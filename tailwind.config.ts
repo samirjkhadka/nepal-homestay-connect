@@ -88,6 +88,11 @@ export default {
         'soft': 'var(--shadow-md)',
         'elevated': 'var(--shadow-lg)',
         'floating': 'var(--shadow-xl)',
+        'primary-glow': 'var(--shadow-primary-glow)',
+      },
+      backgroundImage: {
+        'gradient-warm': 'var(--gradient-warm)',
+        'gradient-accent': 'var(--gradient-accent)',
       },
       keyframes: {
         "accordion-down": {

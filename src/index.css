@@ -19,9 +19,10 @@
     --popover: 35 25% 99%;
     --popover-foreground: 25 30% 12%;
 
-    /* Primary: Terracotta/Rust - Nepali temple inspired */
-    --primary: 15 65% 45%;
+    /* Primary: Terracotta/Rust - softened for warmth */
+    --primary: 15 60% 48%;
     --primary-foreground: 35 30% 98%;
+    --primary-deep: 15 65% 38%;
 
     /* Secondary: Forest Green - Mountain nature */
     --secondary: 150 35% 25%;
@@ -29,7 +30,7 @@
 
     /* Muted surfaces */
     --muted: 35 20% 92%;
-    --muted-foreground: 25 15% 45%;
+    --muted-foreground: 25 15% 40%;
 
     /* Accent: Saffron Gold - Cultural significance */
     --accent: 42 90% 55%;
@@ -40,12 +41,12 @@
 
     --border: 35 25% 88%;
     --input: 35 25% 88%;
-    --ring: 15 65% 45%;
+    --ring: 15 60% 48%;
 
     --radius: 0.75rem;
 
     /* Custom colors */
-    --terracotta: 15 65% 45%;
+    --terracotta: 15 60% 48%;
     --terracotta-light: 15 55% 65%;
     --forest: 150 35% 25%;
     --forest-light: 150 30% 35%;
@@ -57,9 +58,10 @@
     --earth-brown: 25 35% 30%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(15 65% 45% / 0.9), hsl(150 35% 25% / 0.8));
+    --gradient-hero: linear-gradient(135deg, hsl(15 60% 48% / 0.9), hsl(150 35% 25% / 0.8));
     --gradient-card: linear-gradient(180deg, hsl(35 25% 99%), hsl(35 20% 95%));
-    --gradient-accent: linear-gradient(135deg, hsl(42 90% 55%), hsl(15 65% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(42 90% 55%), hsl(15 60% 50%));
+    --gradient-warm: linear-gradient(135deg, hsl(42 90% 55%), hsl(15 65% 50%));
     --gradient-dark: linear-gradient(180deg, hsl(25 30% 12%), hsl(25 35% 8%));
 
     /* Shadows */
@@ -68,55 +70,60 @@
     --shadow-lg: 0 8px 32px hsl(25 30% 12% / 0.12);
     --shadow-xl: 0 16px 48px hsl(25 30% 12% / 0.15);
     --shadow-glow: 0 0 40px hsl(42 90% 55% / 0.3);
+    --shadow-primary-glow: 0 8px 28px -8px hsl(15 60% 48% / 0.45);
 
     /* Sidebar */
     --sidebar-background: 35 25% 99%;
     --sidebar-foreground: 25 30% 12%;
-    --sidebar-primary: 15 65% 45%;
+    --sidebar-primary: 15 60% 48%;
     --sidebar-primary-foreground: 35 30% 98%;
     --sidebar-accent: 35 20% 92%;
     --sidebar-accent-foreground: 25 30% 12%;
     --sidebar-border: 35 25% 88%;
-    --sidebar-ring: 15 65% 45%;
+    --sidebar-ring: 15 60% 48%;
   }
 
   .dark {
     --background: 25 30% 8%;
-    --foreground: 35 25% 95%;
+    --foreground: 35 25% 96%;
 
-    --card: 25 25% 12%;
-    --card-foreground: 35 25% 95%;
+    --card: 25 25% 13%;
+    --card-foreground: 35 25% 96%;
 
-    --popover: 25 25% 12%;
-    --popover-foreground: 35 25% 95%;
+    --popover: 25 25% 13%;
+    --popover-foreground: 35 25% 96%;
 
-    --primary: 15 55% 55%;
+    --primary: 15 60% 58%;
     --primary-foreground: 25 30% 8%;
+    --primary-deep: 15 65% 48%;
 
-    --secondary: 150 30% 35%;
-    --secondary-foreground: 35 25% 95%;
+    --secondary: 150 30% 38%;
+    --secondary-foreground: 35 25% 96%;
 
     --muted: 25 20% 18%;
-    --muted-foreground: 35 15% 60%;
+    --muted-foreground: 35 18% 72%;
 
-    --accent: 42 85% 60%;
+    --accent: 42 88% 62%;
     --accent-foreground: 25 30% 8%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 35 25% 95%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 35 25% 96%;
 
-    --border: 25 20% 20%;
-    --input: 25 20% 20%;
-    --ring: 15 55% 55%;
+    --border: 25 20% 24%;
+    --input: 25 20% 24%;
+    --ring: 15 60% 58%;
+
+    --gradient-warm: linear-gradient(135deg, hsl(42 88% 62%), hsl(15 60% 55%));
+    --shadow-primary-glow: 0 8px 28px -8px hsl(15 60% 58% / 0.55);
 
     --sidebar-background: 25 25% 10%;
-    --sidebar-foreground: 35 25% 95%;
-    --sidebar-primary: 15 55% 55%;
+    --sidebar-foreground: 35 25% 96%;
+    --sidebar-primary: 15 60% 58%;
     --sidebar-primary-foreground: 25 30% 8%;
-    --sidebar-accent: 25 20% 15%;
-    --sidebar-accent-foreground: 35 25% 95%;
-    --sidebar-border: 25 20% 18%;
-    --sidebar-ring: 15 55% 55%;
+    --sidebar-accent: 25 20% 16%;
+    --sidebar-accent-foreground: 35 25% 96%;
+    --sidebar-border: 25 20% 22%;
+    --sidebar-ring: 15 60% 58%;
   }
 }
 
@@ -125,13 +132,39 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  /* Visible focus rings for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/70 ring-offset-2 ring-offset-background rounded-md;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -151,6 +184,11 @@
     background-image: var(--gradient-accent);
   }
 
+  /* Warm gradient utility */
+  .bg-gradient-warm {
+    background-image: var(--gradient-warm);
+  }
+
   /* Card hover effect */
   .card-hover {
     @apply transition-all duration-300 ease-out;
@@ -164,6 +202,11 @@
   /* Section container */
   .section-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Consistent section padding */
+  .section-padding {
+    @apply py-16 md:py-24;
   }
 
   /* Nepali pattern overlay */
@@ -184,6 +227,50 @@
   .nav-link:hover::after {
     @apply scale-x-100 origin-left;
   }
+
+  /* CTA micro-interaction */
+  .btn-cta {
+    @apply transition-all duration-200 hover:scale-[1.03] active:scale-[0.98];
+    box-shadow: var(--shadow-primary-glow);
+  }
+  .btn-cta:hover {
+    box-shadow: 0 12px 32px -8px hsl(var(--primary) / 0.55);
+  }
+
+  /* Prayer-flag color strip (Tibetan: blue, white, red, green, yellow) */
+  .prayer-flag-strip {
+    background: linear-gradient(
+      to right,
+      #2c6fbb 0%, #2c6fbb 20%,
+      #f5f5f5 20%, #f5f5f5 40%,
+      #d94545 40%, #d94545 60%,
+      #2f9e5b 60%, #2f9e5b 80%,
+      #f0c948 80%, #f0c948 100%
+    );
+  }
+
+  /* Skeleton shimmer */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--muted));
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--background) / 0.6),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
 }
 
 @layer utilities {
@@ -193,4 +280,24 @@
   .animation-delay-300 { animation-delay: 300ms; }
   .animation-delay-400 { animation-delay: 400ms; }
   .animation-delay-500 { animation-delay: 500ms; }
+
+  /* Hero text shadow for legibility on bright photos */
+  .text-shadow-hero {
+    text-shadow: 0 2px 16px hsl(0 0% 0% / 0.55), 0 1px 4px hsl(0 0% 0% / 0.4);
+  }
+
+  /* Min-44px tap target on mobile */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ken-burns slow zoom for hero */
+  @keyframes ken-burns {
+    0%   { transform: scale(1.0); }
+    100% { transform: scale(1.12); }
+  }
+  .animate-ken-burns {
+    animation: ken-burns 12s ease-out forwards;
+  }
 }
