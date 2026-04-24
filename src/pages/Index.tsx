@@ -9,6 +9,7 @@ import { InteractiveProvinceMap } from '@/components/InteractiveProvinceMap';
 import { MobileAppSection } from '@/components/MobileAppSection';
 import { YouTubeSection } from '@/components/YouTubeSection';
 import { BlogSection } from '@/components/BlogSection';
+import { PartnersSection } from '@/components/PartnersSection';
 import { Footer } from '@/components/Footer';
 
 const Index = () => {
@@ -25,6 +26,7 @@ const Index = () => {
       <MobileAppSection />
       <YouTubeSection />
       <BlogSection />
+      <PartnersSection />
       <Footer />
     </div>
   );
