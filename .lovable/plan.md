@@ -1,89 +1,134 @@
 
 
-# Visual Polish & Nepal Map Fix
+# Admin CMS + Host Property Management Dashboards
 
-## Part 1: Fix the Nepal Map (Critical)
-
-The current "map" in `InteractiveProvinceMap.tsx` is a generic blob shape — not Nepal at all. Replace it with an accurate SVG path of Nepal's borders, with each of the 7 provinces as **separate clickable polygon regions** (not just dots floating on a blob).
-
-- Use a real GeoJSON-derived SVG path for Nepal's outline + 7 province sub-paths
-- Each province becomes a hoverable/clickable `<path>` that fills with terracotta on hover
-- Province name labels positioned at each region's centroid
-- Small marker dot showing homestay count badge per province
-- Mini-legend showing "X homestays" color scale
-- Keep the existing info side-panel (it works well)
+Build out the Admin and Host dashboards into proper management consoles. All data persisted to `localStorage` via a new mock content store, structured so it can swap to a Supabase/API backend later without UI changes.
 
 ---
 
-## Part 2: Visual & UI Upgrades
+## Part 1 — Admin CMS (manages all public-facing content)
 
-### A. Color & Theme Refinements
-- **Dark mode contrast pass** — several sections still have low-contrast text on dark backgrounds (testimonial cards, footer links, badge text). Audit and fix.
-- **Primary color softening** — current terracotta `15 65% 45%` is slightly harsh. Shift to `15 60% 48%` for warmer feel; add a deeper variant for hovers.
-- **Accent gradient additions** — introduce a subtle saffron→terracotta gradient utility (`bg-gradient-warm`) for CTAs and section dividers.
+Add new sidebar sections to `DashboardLayout.tsx` (admin role) and create matching pages under `src/pages/admin/`:
 
-### B. Hero Section Polish
-- Add a subtle **mountain silhouette SVG** at the bottom of the hero for depth
-- Slow Ken-Burns zoom on hero images (already has carousel, add scale animation)
-- Refine hero text shadow for better legibility on bright photos
-- Add scroll-indicator chevron at bottom
+### 1. `AdminCMSHero.tsx` — Hero & Landing
+- Edit hero headline, subheadline, CTA labels, hero image URLs (carousel slides add/remove/reorder)
+- Toggle visibility of homepage sections (Featured, Impact, Partners, Blogs, Testimonials, etc.)
+- Live preview note: changes reflect after save (reads from store on Index render)
 
-### C. Card & Component Upgrades
-- **Homestay cards**: add subtle border-glow on hover, image zoom on hover, "New" / "Popular" ribbons for featured items
-- **Section dividers**: add decorative SVG dividers (mountain peaks, mandala motifs) between major sections instead of plain spacing
-- **Badge redesign**: ExperienceBadges currently flat — add soft colored backgrounds matching each badge's meaning (green for eco, purple for women-led, etc.)
-- **Buttons**: add micro-interaction (slight scale + shadow) on hover for all primary CTAs
+### 2. `AdminCMSPartners.tsx` — Partners Manager
+- CRUD for partner categories (Payment, Travel, Events, Community)
+- Add/edit/delete partner entries (name, logo URL, website, category)
+- Drag-to-reorder within each category
 
-### D. Typography & Spacing
-- Increase headline letter-spacing on display fonts (-0.02em) for premium feel
-- Tighten line-height on body text from default to `1.65`
-- Add consistent section padding scale (`py-16 md:py-24`) — currently inconsistent across sections
+### 3. `AdminCMSFestivals.tsx` — Festivals & Cultural Calendar
+- CRUD for festival entries (name, month, region, description, image)
+- Toggle "featured" flag
 
-### E. Section-Specific Improvements
-- **TrustStrip**: animate the numbers counting up when scrolled into view
-- **PartnersSection**: replace plain text with styled logo placeholder cards (rounded boxes with gradient borders)
-- **TestimonialsSection**: add quote-mark decorative SVG, alternate card alignment
-- **ImpactSection**: add animated progress bars/circles for impact metrics
-- **Footer**: add a "Made with ❤️ in Nepal" strip with prayer-flag color accent line on top
+### 4. `AdminCMSExperiences.tsx` — Local Experiences
+- CRUD for marketplace experiences (title, host, price, duration, category, image)
 
-### F. Micro-Interactions & Motion
-- Page transition fade between routes (already has `PageTransition.tsx` — verify it's wired)
-- Add subtle parallax on hero photos
-- Stagger animations on grid items as they enter viewport
-- Loading skeleton shimmer effect (currently static)
+### 5. `AdminCMSBlogs.tsx` — Blog Manager
+- List, create, edit, delete blog posts (title, slug, excerpt, body, cover image, tags, author, publish toggle)
+- Markdown-style textarea for body
 
-### G. Accessibility & Polish
-- Visible focus rings on all interactive elements (terracotta outline)
-- Increase tap targets to min 44px on mobile
-- Add `prefers-reduced-motion` support for motion components
+### 6. `AdminCMSTestimonials.tsx` — Testimonials
+- CRUD testimonials (guest name, location, quote, rating, avatar)
 
----
+### 7. `AdminCMSPages.tsx` — Static Pages
+- Edit copy for About, Contact, Privacy, Terms, Cancellation, Safety (rich textarea per page)
 
-## Files to Modify
+### 8. `AdminCMSNavigation.tsx` — Menu & Footer
+- Manage navbar links (label, URL, order, visible toggle)
+- Manage footer columns and link groups
+- Edit footer tagline + social URLs
 
-**Major rewrite:**
-- `src/components/InteractiveProvinceMap.tsx` — proper Nepal SVG with 7 province paths
+### 9. `AdminCMSTheme.tsx` — Theme & Branding
+- Color picker for primary, accent, background tokens (writes to CSS variables)
+- Logo upload (URL field), site name, favicon URL
+- Toggle dark mode default
 
-**Theme/global:**
-- `src/index.css` — color refinements, gradient utilities, focus rings, divider styles
-- `tailwind.config.ts` — add gradient-warm utility, refined shadow tokens
+### 10. `AdminCMSMedia.tsx` — Media Library (mock)
+- Grid of uploaded image URLs with copy-to-clipboard
+- Add new image by URL, delete, search/filter
 
-**Component polish:**
-- `src/components/HeroSection.tsx` — mountain silhouette, scroll indicator
-- `src/components/FeaturedHomestays.tsx` — card hover upgrades, ribbons
-- `src/components/ExperienceBadges.tsx` — colored backgrounds per badge type
-- `src/components/TrustStrip.tsx` — animated counters
-- `src/components/PartnersSection.tsx` — styled logo cards
-- `src/components/TestimonialsSection.tsx` — quote SVG, layout variation
-- `src/components/ImpactSection.tsx` — animated progress visuals
-- `src/components/Footer.tsx` — Nepal pride strip
-- `src/components/HomestayCardSkeleton.tsx` — shimmer effect
-
-**New utility component:**
-- `src/components/SectionDivider.tsx` — reusable mountain/mandala dividers
+### Enhance existing admin pages:
+- `AdminBookings.tsx` — add filters (status, date range, host), bulk actions, export CSV button
+- `AdminUsers.tsx` — role change, suspend/activate, search & filter, view profile drawer
+- `AdminAnalytics.tsx` — add more chart variants (revenue trend, top provinces, conversion funnel) — mock data
+- `AdminSettings.tsx` — add tabs: General / Email Templates / Payments / SEO / Integrations
 
 ---
 
-## Approach
-All changes are **frontend-only**, additive, and use existing design tokens. No data structure changes. Motion respects `prefers-reduced-motion`. The Nepal map uses an accurate simplified SVG (lightweight, no external map library needed).
+## Part 2 — Host Dashboard (manages their own property)
+
+Replace the minimal `HostDashboard.tsx` with a full host console using `DashboardLayout.tsx`. Add sidebar entries (host role) and create:
+
+### 1. `HostDashboard.tsx` — Overview
+- Stats cards: total bookings, revenue this month, occupancy %, avg rating
+- Upcoming check-ins list, recent reviews, quick actions
+
+### 2. `HostListings.tsx` — My Properties
+- List of host's homestays with edit/delete/view
+- "Add new property" CTA
+
+### 3. `HostListingEditor.tsx` — Add/Edit Property
+- Tabs: Basics (name, location, description, type) / Photos (URL list, drag-reorder, set cover) / Amenities (checklist) / Pricing (per night, weekend uplift, cleaning fee) / Rules (check-in time, house rules) / Experience Badges (toggle eco, female-led, etc.)
+- Save draft / publish toggle
+
+### 4. `HostCalendar.tsx` — Availability Manager
+- Month grid; click date(s) to block/unblock
+- Set custom pricing per date range
+- Sync indicator (mock)
+
+### 5. `HostBookings.tsx` — Reservations
+- Tabs: Upcoming / Current / Past / Cancelled
+- Approve/decline pending requests, message guest, view booking detail drawer
+
+### 6. `HostExperiences.tsx` — My Experiences (add-ons)
+- CRUD experiences host offers (cooking class, village walk, etc.)
+- Price, duration, max guests, image
+
+### 7. `HostInbox.tsx` — Guest Messages
+- Conversation list + thread view (mock chat UI), mark read/unread
+
+### 8. `HostReviews.tsx` — Reviews & Ratings
+- All reviews on host's properties, reply form, rating breakdown chart
+
+### 9. `HostEarnings.tsx` — Earnings & Payouts
+- Revenue chart (last 12 months), payout history table, pending balance, payout method (mock)
+
+### 10. `HostProfile.tsx` — Host Profile
+- Edit name, bio, photo, video intro URL, languages, family members (Meet the Community editor)
+- Verification badges status
+
+### 11. `HostSettings.tsx` — Settings
+- Notification preferences, calendar sync, payout preferences, account
+
+---
+
+## Part 3 — Shared Infrastructure
+
+### New files
+- `src/contexts/CMSContext.tsx` — central provider exposing all CMS content + `update*` setters; persists to `localStorage` under `nh-cms-v1`. All public components (Hero, Partners, Festivals, etc.) read from this instead of hardcoded arrays.
+- `src/data/cmsDefaults.ts` — seed content moved from existing hardcoded arrays so first load looks identical.
+- `src/contexts/HostDataContext.tsx` — host-scoped store: properties, bookings, messages, reviews, earnings, experiences, blocked dates. Persists per-host in `localStorage`.
+- `src/components/admin/EditableTable.tsx`, `ImageUrlInput.tsx`, `RichTextarea.tsx`, `ColorPicker.tsx` — reusable admin form primitives
+- `src/components/host/StatCard.tsx`, `BookingRow.tsx`, `CalendarGrid.tsx` — host UI primitives
+
+### Modifications
+- `src/App.tsx` — wrap app in `CMSProvider` and `HostDataProvider`; register all new admin & host routes
+- `src/components/DashboardLayout.tsx` — extend sidebar nav arrays for admin and host roles with all new sections, grouped (Content / Commerce / Settings for admin; Listings / Reservations / Finance / Profile for host)
+- `src/components/HeroSection.tsx`, `PartnersSection.tsx`, `FeaturedHomestays.tsx`, `BlogSection.tsx`, `TestimonialsSection.tsx`, `Footer.tsx`, `Navbar.tsx`, `pages/Festivals.tsx` — read from `useCMS()` instead of hardcoded data so admin edits actually appear on the public site
+
+### Conventions
+- Every CRUD form uses shadcn `Dialog` + `Form` with toast confirmations
+- Every list uses search + filter + empty state
+- All write operations are optimistic with `localStorage` persistence
+- Data shapes mirror eventual REST resources (id, createdAt, updatedAt) for easy API swap
+
+---
+
+## Scope Note
+
+This is a **large change** touching 30+ new files and 10+ existing files. Will be implemented in one pass but expect a longer build. No backend, no breaking changes to public site appearance — defaults seed identical content.
 
