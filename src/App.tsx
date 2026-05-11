@@ -13,6 +13,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { CompareProvider } from "@/contexts/CompareContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { CMSProvider } from "@/contexts/CMSContext";
+import { HostDataProvider } from "@/contexts/HostDataContext";
 import { CompareWidget } from "@/components/CompareWidget";
 import { PhrasebookButton } from "@/components/PhrasebookButton";
 import { WhatsAppWidget } from "@/components/WhatsAppWidget";
@@ -55,9 +57,28 @@ import AdminBookings from "./pages/admin/AdminBookings";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminCMSHero from "./pages/admin/AdminCMSHero";
+import AdminCMSPartners from "./pages/admin/AdminCMSPartners";
+import AdminCMSFestivals from "./pages/admin/AdminCMSFestivals";
+import AdminCMSExperiences from "./pages/admin/AdminCMSExperiences";
+import AdminCMSBlogs from "./pages/admin/AdminCMSBlogs";
+import AdminCMSTestimonials from "./pages/admin/AdminCMSTestimonials";
+import AdminCMSPages from "./pages/admin/AdminCMSPages";
+import AdminCMSNavigation from "./pages/admin/AdminCMSNavigation";
+import AdminCMSTheme from "./pages/admin/AdminCMSTheme";
+import AdminCMSMedia from "./pages/admin/AdminCMSMedia";
 
 // Host pages
 import HostDashboard from "./pages/host/HostDashboard";
+import HostListings from "./pages/host/HostListings";
+import HostCalendar from "./pages/host/HostCalendar";
+import HostBookings from "./pages/host/HostBookings";
+import HostExperiences from "./pages/host/HostExperiences";
+import HostInbox from "./pages/host/HostInbox";
+import HostReviews from "./pages/host/HostReviews";
+import HostEarnings from "./pages/host/HostEarnings";
+import HostProfilePage from "./pages/host/HostProfilePage";
+import HostSettings from "./pages/host/HostSettings";
 
 // Guest pages
 import GuestDashboard from "./pages/guest/GuestDashboard";
@@ -108,10 +129,28 @@ function AnimatedRoutes() {
         <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAnalytics /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminSettings /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/hero" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSHero /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/partners" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSPartners /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/festivals" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSFestivals /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/experiences" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSExperiences /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/blogs" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSBlogs /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/testimonials" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSTestimonials /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/pages" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSPages /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/navigation" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSNavigation /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/theme" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSTheme /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/cms/media" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSMedia /></DashboardLayout></ProtectedRoute>} />
 
         {/* Host Routes */}
         <Route path="/host" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostDashboard /></DashboardLayout></ProtectedRoute>} />
-        <Route path="/host/*" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostDashboard /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/listings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostListings /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/calendar" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostCalendar /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/bookings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostBookings /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/experiences" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostExperiences /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/inbox" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostInbox /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/reviews" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostReviews /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/earnings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostEarnings /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/profile" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostProfilePage /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/settings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostSettings /></DashboardLayout></ProtectedRoute>} />
 
         {/* Guest Routes */}
         <Route path="/guest" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestDashboard /></DashboardLayout></ProtectedRoute>} />
@@ -128,6 +167,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
+        <CMSProvider>
+        <HostDataProvider>
         <CurrencyProvider>
           <WishlistProvider>
             <CompareProvider>
@@ -144,6 +185,8 @@ const App = () => (
             </CompareProvider>
           </WishlistProvider>
         </CurrencyProvider>
+        </HostDataProvider>
+        </CMSProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

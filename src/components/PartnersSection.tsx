@@ -1,64 +1,19 @@
 import { motion } from 'framer-motion';
 import { CreditCard, Plane, PartyPopper, Building2, Handshake } from 'lucide-react';
+import { useCMS } from '@/contexts/CMSContext';
 
-const partnerCategories = [
-  {
-    title: 'Payment Partners',
-    icon: CreditCard,
-    description: 'Secure payments across Nepal and worldwide',
-    partners: [
-      { name: 'eSewa', tag: 'Digital Wallet' },
-      { name: 'Khalti', tag: 'Mobile Payment' },
-      { name: 'IME Pay', tag: 'Wallet' },
-      { name: 'Visa', tag: 'Card Network' },
-      { name: 'Mastercard', tag: 'Card Network' },
-      { name: 'Stripe', tag: 'Global Gateway' },
-    ],
-  },
-  {
-    title: 'Travel & Tours Partners',
-    icon: Plane,
-    description: 'Trusted operators for treks, transfers and tours',
-    partners: [
-      { name: 'Himalayan Glacier', tag: 'Trekking' },
-      { name: 'Nepal Trekking Routes', tag: 'Adventure' },
-      { name: 'Buddha Air', tag: 'Domestic Flights' },
-      { name: 'Yeti Airlines', tag: 'Mountain Flights' },
-      { name: 'Greenline Tours', tag: 'Transfers' },
-      { name: 'Annapurna Treks', tag: 'Guided Tours' },
-    ],
-  },
-  {
-    title: 'Event Partners',
-    icon: PartyPopper,
-    description: 'Cultural festivals and community celebrations',
-    partners: [
-      { name: 'Nepal Tourism Board', tag: 'Official' },
-      { name: 'Indra Jatra Committee', tag: 'Festival' },
-      { name: 'Tihar Lights Fest', tag: 'Cultural' },
-      { name: 'Himalayan Film Fest', tag: 'Arts' },
-      { name: 'Kathmandu Jazz', tag: 'Music' },
-      { name: 'Lhosar Society', tag: 'Heritage' },
-    ],
-  },
-  {
-    title: 'Community & NGO Partners',
-    icon: Building2,
-    description: 'Driving sustainable, women-led tourism',
-    partners: [
-      { name: 'HomeNet Nepal', tag: 'Women Empowerment' },
-      { name: 'WWF Nepal', tag: 'Conservation' },
-      { name: 'Sasane Sisterhood', tag: 'Anti-Trafficking' },
-      { name: 'Mountain Trust', tag: 'Eco Tourism' },
-    ],
-  },
-];
+const ICON_MAP: Record<string, any> = {
+  CreditCard, Plane, PartyPopper, Building2, Handshake,
+};
 
 export function PartnersSection() {
+  const { content } = useCMS();
+  const partnerCategories = content.partners;
+
   return (
     <section className="py-20 bg-muted/30 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />
-      
+
       <div className="section-container relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -81,10 +36,10 @@ export function PartnersSection() {
 
         <div className="grid gap-8 md:grid-cols-2">
           {partnerCategories.map((category, idx) => {
-            const Icon = category.icon;
+            const Icon = ICON_MAP[category.icon] ?? Handshake;
             return (
               <motion.div
-                key={category.title}
+                key={category.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -104,11 +59,10 @@ export function PartnersSection() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {category.partners.map((partner) => (
                     <motion.div
-                      key={partner.name}
+                      key={partner.id}
                       whileHover={{ y: -3 }}
                       className="relative bg-background border border-border rounded-xl p-3 text-center transition-all hover:shadow-md group/partner overflow-hidden"
                     >
-                      {/* Gradient border accent on hover */}
                       <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-warm opacity-0 group-hover/partner:opacity-100 transition-opacity" />
                       <div className="font-display font-semibold text-sm text-foreground truncate">
                         {partner.name}
