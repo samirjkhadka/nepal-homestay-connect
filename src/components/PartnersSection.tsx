@@ -1,58 +1,10 @@
 import { motion } from 'framer-motion';
 import { CreditCard, Plane, PartyPopper, Building2, Handshake } from 'lucide-react';
+import { useCMS } from '@/contexts/CMSContext';
 
-const partnerCategories = [
-  {
-    title: 'Payment Partners',
-    icon: CreditCard,
-    description: 'Secure payments across Nepal and worldwide',
-    partners: [
-      { name: 'eSewa', tag: 'Digital Wallet' },
-      { name: 'Khalti', tag: 'Mobile Payment' },
-      { name: 'IME Pay', tag: 'Wallet' },
-      { name: 'Visa', tag: 'Card Network' },
-      { name: 'Mastercard', tag: 'Card Network' },
-      { name: 'Stripe', tag: 'Global Gateway' },
-    ],
-  },
-  {
-    title: 'Travel & Tours Partners',
-    icon: Plane,
-    description: 'Trusted operators for treks, transfers and tours',
-    partners: [
-      { name: 'Himalayan Glacier', tag: 'Trekking' },
-      { name: 'Nepal Trekking Routes', tag: 'Adventure' },
-      { name: 'Buddha Air', tag: 'Domestic Flights' },
-      { name: 'Yeti Airlines', tag: 'Mountain Flights' },
-      { name: 'Greenline Tours', tag: 'Transfers' },
-      { name: 'Annapurna Treks', tag: 'Guided Tours' },
-    ],
-  },
-  {
-    title: 'Event Partners',
-    icon: PartyPopper,
-    description: 'Cultural festivals and community celebrations',
-    partners: [
-      { name: 'Nepal Tourism Board', tag: 'Official' },
-      { name: 'Indra Jatra Committee', tag: 'Festival' },
-      { name: 'Tihar Lights Fest', tag: 'Cultural' },
-      { name: 'Himalayan Film Fest', tag: 'Arts' },
-      { name: 'Kathmandu Jazz', tag: 'Music' },
-      { name: 'Lhosar Society', tag: 'Heritage' },
-    ],
-  },
-  {
-    title: 'Community & NGO Partners',
-    icon: Building2,
-    description: 'Driving sustainable, women-led tourism',
-    partners: [
-      { name: 'HomeNet Nepal', tag: 'Women Empowerment' },
-      { name: 'WWF Nepal', tag: 'Conservation' },
-      { name: 'Sasane Sisterhood', tag: 'Anti-Trafficking' },
-      { name: 'Mountain Trust', tag: 'Eco Tourism' },
-    ],
-  },
-];
+const ICON_MAP: Record<string, any> = {
+  CreditCard, Plane, PartyPopper, Building2, Handshake,
+};
 
 export function PartnersSection() {
   return (
