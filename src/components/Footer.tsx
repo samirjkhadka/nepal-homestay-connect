@@ -1,53 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Facebook, 
-  Instagram, 
-  Youtube, 
-  Twitter,
-  Send,
-  Eye
+import {
+  MapPin, Phone, Mail, Facebook, Instagram, Youtube, Twitter, Send, Eye,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const footerLinks = {
-  company: [
-    { name: 'About Us', href: '/about' },
-    { name: 'Our Team', href: '/team' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Press', href: '/press' },
-  ],
-  explore: [
-    { name: 'All Homestays', href: '/homestays' },
-    { name: 'Travel Packages', href: '/packages' },
-    { name: 'Destinations', href: '/destinations' },
-    { name: 'Experiences', href: '/experiences' },
-  ],
-  support: [
-    { name: 'Help Center', href: '/help' },
-    { name: 'Safety Information', href: '/safety' },
-    { name: 'Cancellation Policy', href: '/cancellation' },
-    { name: 'FAQs', href: '/faqs' },
-  ],
-  legal: [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Cookie Policy', href: '/cookies' },
-  ],
-};
-
-const socialLinks = [
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-];
+import { useCMS } from '@/contexts/CMSContext';
 
 export function Footer() {
+  const { content } = useCMS();
   const [visitCount, setVisitCount] = useState(0);
 
   useEffect(() => {
@@ -57,12 +18,17 @@ export function Footer() {
     setVisitCount(count);
   }, []);
 
+  const socialLinks = [
+    { icon: Facebook, href: content.socials.facebook, label: 'Facebook' },
+    { icon: Instagram, href: content.socials.instagram, label: 'Instagram' },
+    { icon: Youtube, href: content.socials.youtube, label: 'YouTube' },
+    { icon: Twitter, href: content.socials.twitter, label: 'Twitter' },
+  ];
+
   return (
     <footer className="bg-foreground text-background">
-      {/* Prayer-flag color strip */}
       <div className="prayer-flag-strip h-1" aria-hidden />
 
-      {/* Newsletter Section */}
       <div className="border-b border-background/10">
         <div className="section-container py-12">
           <motion.div
@@ -72,12 +38,8 @@ export function Footer() {
             className="flex flex-col md:flex-row items-center justify-between gap-6"
           >
             <div>
-              <h3 className="font-display text-2xl font-bold mb-2">
-                Subscribe to Our Newsletter
-              </h3>
-              <p className="text-background/70">
-                Get the latest homestay deals and travel tips delivered to your inbox
-              </p>
+              <h3 className="font-display text-2xl font-bold mb-2">Subscribe to Our Newsletter</h3>
+              <p className="text-background/70">Get the latest homestay deals and travel tips delivered to your inbox</p>
             </div>
             <div className="flex w-full md:w-auto gap-3">
               <input
@@ -94,115 +56,46 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Main Footer */}
       <div className="section-container py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12">
-          {/* Brand Column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-display font-bold text-2xl">N</span>
               </div>
-              <span className="font-display text-2xl font-semibold">
-                Nepali Homestays
-              </span>
+              <span className="font-display text-2xl font-semibold">{content.theme.siteName}</span>
             </div>
-            <p className="text-background/80 mb-6 leading-relaxed">
-              Experience the warmth of Nepali hospitality. We connect travelers with authentic
-              homestay experiences across Nepal's beautiful landscapes.
-            </p>
-            
-            {/* Contact Info */}
+            <p className="text-background/80 mb-6 leading-relaxed">{content.footerTagline}</p>
             <div className="space-y-3 text-background/70">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-accent" />
-                <span>Thamel, Kathmandu, Nepal</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-accent" />
-                <span>+977 1-4123456</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-accent" />
-                <span>info@nepalihomestays.com</span>
-              </div>
+              <div className="flex items-center gap-3"><MapPin className="w-5 h-5 text-accent" /><span>Thamel, Kathmandu, Nepal</span></div>
+              <div className="flex items-center gap-3"><Phone className="w-5 h-5 text-accent" /><span>+977 1-4123456</span></div>
+              <div className="flex items-center gap-3"><Mail className="w-5 h-5 text-accent" /><span>info@nepalihomestays.com</span></div>
             </div>
           </div>
 
-          {/* Links Columns */}
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-background/80 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Explore</h4>
-            <ul className="space-y-3">
-              {footerLinks.explore.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-background/70 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Support</h4>
-            <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-background/70 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Legal</h4>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-background/70 hover:text-accent transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {content.footerColumns.map(col => (
+            <div key={col.id}>
+              <h4 className="font-display font-semibold text-lg mb-4">{col.title}</h4>
+              <ul className="space-y-3">
+                {col.links.filter(l => l.visible).map(link => (
+                  <li key={link.id}>
+                    <Link to={link.href} className="text-background/80 hover:text-accent transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-background/10">
         <div className="section-container py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <p className="text-background/70 text-sm">
-                © 2026 Nepali Homestays. All rights reserved.
+                © 2026 {content.theme.siteName}. All rights reserved.
               </p>
               <div className="flex items-center gap-1.5 text-background/60 text-sm">
                 <Eye className="w-4 h-4" />
@@ -213,12 +106,12 @@ export function Footer() {
               </span>
             </div>
 
-            {/* Social Links */}
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
+                  target="_blank" rel="noreferrer"
                   whileHover={{ scale: 1.1, y: -2 }}
                   className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors tap-target"
                   aria-label={social.label}

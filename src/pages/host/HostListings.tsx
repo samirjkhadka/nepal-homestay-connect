@@ -38,14 +38,15 @@ export default function HostListings() {
     update('properties', data.properties.map(p => p.id === id ? { ...p, published: !p.published } : p));
   };
 
-  const save = () => {
+  const save = (publish?: boolean) => {
     if (!editing) return;
-    const exists = data.properties.find(p => p.id === editing.id);
+    const next = publish === undefined ? editing : { ...editing, published: publish };
+    const exists = data.properties.find(p => p.id === next.id);
     update('properties', exists
-      ? data.properties.map(p => p.id === editing.id ? editing : p)
-      : [...data.properties, editing]
+      ? data.properties.map(p => p.id === next.id ? next : p)
+      : [...data.properties, next]
     );
-    toast({ title: 'Saved', description: editing.name });
+    toast({ title: publish === false ? 'Saved as draft' : publish === true ? 'Published' : 'Saved', description: next.name });
     setEditing(null);
   };
 
@@ -96,14 +97,14 @@ export default function HostListings() {
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing && data.properties.find(p => p.id === editing.id) ? 'Edit' : 'New'} Property</DialogTitle></DialogHeader>
-          {editing && <PropertyEditor property={editing} onChange={setEditing} onSave={save} />}
+          {editing && <PropertyEditor property={editing} onChange={setEditing} onSaveDraft={() => save(false)} onPublish={() => save(true)} />}
         </DialogContent>
       </Dialog>
     </div>
   );
 }
 
-function PropertyEditor({ property, onChange, onSave }: { property: HostProperty; onChange: (p: HostProperty) => void; onSave: () => void }) {
+function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { property: HostProperty; onChange: (p: HostProperty) => void; onSaveDraft: () => void; onPublish: () => void }) {
   const set = (patch: Partial<HostProperty>) => onChange({ ...property, ...patch });
   const setRules = (patch: Partial<HostProperty['rules']>) => onChange({ ...property, rules: { ...property.rules, ...patch } });
 
@@ -196,8 +197,9 @@ function PropertyEditor({ property, onChange, onSave }: { property: HostProperty
         </div>
       </TabsContent>
 
-      <div className="pt-4 border-t border-border mt-4">
-        <Button onClick={onSave} className="w-full">Save Property</Button>
+      <div className="pt-4 border-t border-border mt-4 flex flex-col sm:flex-row gap-2">
+        <Button variant="outline" onClick={onSaveDraft} className="flex-1">Save as Draft</Button>
+        <Button onClick={onPublish} className="flex-1">{property.published ? 'Update & Publish' : 'Publish Property'}</Button>
       </div>
     </Tabs>
   );

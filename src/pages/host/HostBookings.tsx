@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { useHostData } from '@/contexts/HostDataContext';
-import { Check, X, MessageSquare } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { useHostData, HostBooking } from '@/contexts/HostDataContext';
+import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const statusColors: Record<string, string> = {
@@ -12,12 +15,32 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 };
 
+const uid = () => `m-${Math.random().toString(36).slice(2, 8)}`;
+
 export default function HostBookings() {
   const { data, update } = useHostData();
+  const [detail, setDetail] = useState<HostBooking | null>(null);
+  const [chat, setChat] = useState<HostBooking | null>(null);
+  const [draft, setDraft] = useState('');
 
-  const setStatus = (id: string, status: any) => {
+  const setStatus = (id: string, status: HostBooking['status']) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
+    if (detail?.id === id) setDetail({ ...detail, status });
     toast({ title: `Booking ${status}` });
+  };
+
+  const threadIdFor = (b: HostBooking) => `booking-${b.id}`;
+  const messagesFor = (b: HostBooking) => data.messages[threadIdFor(b)] ?? [];
+
+  const sendMessage = () => {
+    if (!chat || !draft.trim()) return;
+    const tid = threadIdFor(chat);
+    const next = {
+      ...data.messages,
+      [tid]: [...(data.messages[tid] ?? []), { id: uid(), threadId: tid, from: 'host' as const, body: draft.trim(), at: new Date().toISOString() }],
+    };
+    update('messages', next);
+    setDraft('');
   };
 
   const groups = {
@@ -27,29 +50,30 @@ export default function HostBookings() {
     cancelled: data.bookings.filter(b => b.status === 'cancelled'),
   };
 
-  const renderList = (list: typeof data.bookings) => (
+  const renderList = (list: HostBooking[]) => (
     <div className="space-y-3">
       {list.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No bookings here.</p>}
       {list.map(b => (
         <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex-1">
+          <button onClick={() => setDetail(b)} className="flex-1 text-left">
             <div className="flex items-center gap-2">
               <p className="font-semibold text-foreground">{b.guest}</p>
               <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[b.status]}`}>{b.status}</span>
             </div>
             <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
             <p className="text-sm text-muted-foreground mt-1">{b.checkIn} → {b.checkOut} · {b.guests} guests</p>
-          </div>
+          </button>
           <div className="text-right">
             <p className="font-semibold text-foreground">NPR {b.amount.toLocaleString()}</p>
-            <div className="flex gap-1 justify-end mt-2">
+            <div className="flex gap-1 justify-end mt-2 flex-wrap">
+              <Button size="sm" variant="ghost" onClick={() => setDetail(b)}><Eye className="w-3 h-3 mr-1" />Details</Button>
               {b.status === 'pending' && (
                 <>
                   <Button size="sm" variant="outline" onClick={() => setStatus(b.id, 'confirmed')}><Check className="w-3 h-3 mr-1" />Approve</Button>
                   <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setStatus(b.id, 'cancelled')}><X className="w-3 h-3" /></Button>
                 </>
               )}
-              <Button size="sm" variant="ghost"><MessageSquare className="w-3 h-3 mr-1" />Message</Button>
+              <Button size="sm" variant="ghost" onClick={() => setChat(b)}><MessageSquare className="w-3 h-3 mr-1" />Message</Button>
             </div>
           </div>
         </Card>
@@ -76,6 +100,98 @@ export default function HostBookings() {
         <TabsContent value="completed" className="mt-4">{renderList(groups.completed)}</TabsContent>
         <TabsContent value="cancelled" className="mt-4">{renderList(groups.cancelled)}</TabsContent>
       </Tabs>
+
+      {/* Booking detail drawer */}
+      <Sheet open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <SheetContent className="sm:max-w-md overflow-y-auto">
+          {detail && (
+            <>
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  {detail.guest}
+                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[detail.status]}`}>{detail.status}</span>
+                </SheetTitle>
+                <SheetDescription>Booking #{detail.id}</SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 space-y-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground"><Mail className="w-4 h-4" />{detail.guestEmail}</div>
+                  <div className="flex items-center gap-2 text-muted-foreground"><Users className="w-4 h-4" />{detail.guests} guests</div>
+                  <div className="flex items-center gap-2 text-muted-foreground col-span-2"><Calendar className="w-4 h-4" />{detail.checkIn} → {detail.checkOut}</div>
+                </div>
+
+                <Card className="p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Total amount</span>
+                    <span className="font-semibold text-foreground">NPR {detail.amount.toLocaleString()}</span>
+                  </div>
+                </Card>
+
+                <div className="flex flex-col gap-2 pt-2">
+                  {detail.status === 'pending' && (
+                    <>
+                      <Button onClick={() => setStatus(detail.id, 'confirmed')}><Check className="w-4 h-4 mr-2" />Approve booking</Button>
+                      <Button variant="destructive" onClick={() => setStatus(detail.id, 'cancelled')}><X className="w-4 h-4 mr-2" />Decline</Button>
+                    </>
+                  )}
+                  {detail.status === 'confirmed' && (
+                    <>
+                      <Button onClick={() => setStatus(detail.id, 'completed')}>Mark completed</Button>
+                      <Button variant="outline" className="text-destructive" onClick={() => setStatus(detail.id, 'cancelled')}>Cancel reservation</Button>
+                    </>
+                  )}
+                  <Button variant="outline" onClick={() => { setChat(detail); }}>
+                    <MessageSquare className="w-4 h-4 mr-2" />Message guest
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Messaging drawer */}
+      <Sheet open={!!chat} onOpenChange={(o) => { if (!o) { setChat(null); setDraft(''); } }}>
+        <SheetContent className="sm:max-w-md flex flex-col">
+          {chat && (
+            <>
+              <SheetHeader>
+                <SheetTitle>Chat with {chat.guest}</SheetTitle>
+                <SheetDescription>Booking #{chat.id} · {chat.checkIn} → {chat.checkOut}</SheetDescription>
+              </SheetHeader>
+
+              <div className="flex-1 overflow-y-auto py-4 space-y-2">
+                {messagesFor(chat).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">No messages yet — say hello!</p>
+                )}
+                {messagesFor(chat).map(m => (
+                  <div key={m.id} className={`flex ${m.from === 'host' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${m.from === 'host' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
+                      {m.body}
+                      <div className={`text-[10px] opacity-60 mt-1 ${m.from === 'host' ? 'text-primary-foreground' : ''}`}>
+                        {new Date(m.at).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-border pt-3 flex gap-2">
+                <Input
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+                  placeholder="Type a message…"
+                />
+                <Button onClick={sendMessage} disabled={!draft.trim()}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

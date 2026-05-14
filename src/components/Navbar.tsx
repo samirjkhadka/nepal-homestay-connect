@@ -1,20 +1,12 @@
- import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
  import { Menu, X, Globe, ChevronDown, Moon, Sun, LogIn, UserPlus, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
+import { useCMS } from '@/contexts/CMSContext';
 
  import { useTheme } from '@/components/ThemeProvider';
- 
-const navItems = [
-  { name: 'Home', href: '/' },
-  { name: 'Search', href: '/search' },
-  { name: 'Festivals', href: '/festivals' },
-  { name: 'Trip Planner', href: '/trip-planner' },
-  { name: 'Blogs', href: '/blogs' },
-  { name: 'About', href: '/about' },
-];
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -22,6 +14,11 @@ const languages = [
 ];
 
 export function Navbar() {
+  const { content } = useCMS();
+  const navItems = [
+    { name: 'Home', href: '/' },
+    ...content.navLinks.filter(l => l.visible).map(l => ({ name: l.label, href: l.href })),
+  ];
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
@@ -57,7 +54,7 @@ export function Navbar() {
                 <span className="text-primary-foreground font-display font-bold text-xl">N</span>
               </div>
               <span className="font-display text-xl font-semibold text-foreground">
-                Nepali Homestays
+                {content.theme.siteName}
               </span>
             </Link>
           </motion.div>
