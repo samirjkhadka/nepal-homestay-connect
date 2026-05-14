@@ -1,68 +1,37 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sarah Johnson',
-    country: 'United States',
-    avatar: 'S',
-    rating: 5,
-    homestay: 'Mountain View Retreat',
-    comment: 'An absolutely magical experience! The host family treated us like their own. Waking up to the Himalayan sunrise with a cup of Nepali chai was unforgettable. This is exactly what travel should feel like.',
-  },
-  {
-    id: 2,
-    name: 'Takeshi Yamamoto',
-    country: 'Japan',
-    avatar: 'T',
-    rating: 5,
-    homestay: 'Lakeside Heritage Home',
-    comment: 'The cultural immersion was beyond anything I expected. Learning traditional cooking with the family and joining village festivals gave me memories I will treasure forever. Truly authentic Nepal.',
-  },
-  {
-    id: 3,
-    name: 'Emma Müller',
-    country: 'Germany',
-    avatar: 'E',
-    rating: 5,
-    homestay: 'Tharu Cultural Homestay',
-    comment: 'As a solo female traveler, I felt completely safe and welcomed. The Tharu dance performance and jungle safari were highlights. The host went above and beyond to make my stay perfect.',
-  },
-  {
-    id: 4,
-    name: 'Raj Patel',
-    country: 'India',
-    avatar: 'R',
-    rating: 5,
-    homestay: 'Ancient Newari House',
-    comment: 'The Newari architecture and heritage of the house was stunning. Every corner told a story. The host\'s knowledge of local history and culture made this an educational and heartwarming experience.',
-  },
-  {
-    id: 5,
-    name: 'Claire Dupont',
-    country: 'France',
-    avatar: 'C',
-    rating: 5,
-    homestay: 'Himalayan Tea Garden Stay',
-    comment: 'Picking tea leaves at sunrise, then enjoying freshly brewed tea with panoramic mountain views — pure bliss. The family\'s warmth and the serene environment made me extend my stay twice!',
-  },
-];
+import { useCMS } from '@/contexts/CMSContext';
 
 export function TestimonialsSection() {
+  const { content } = useCMS();
+  const testimonials = content.testimonials.length ? content.testimonials : [
+    { id: 'fallback', name: '—', location: '', quote: 'No testimonials yet.', rating: 5 },
+  ];
   const [current, setCurrent] = useState(0);
 
+  useEffect(() => { setCurrent(0); }, [testimonials.length]);
+
   useEffect(() => {
+    if (testimonials.length < 2) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % testimonials.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [testimonials.length]);
 
   const prev = () => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length);
   const next = () => setCurrent((c) => (c + 1) % testimonials.length);
-  const t = testimonials[current];
+  const raw = testimonials[current];
+  const t = {
+    id: raw.id,
+    name: raw.name,
+    country: raw.location,
+    avatar: (raw.name || '?').charAt(0).toUpperCase(),
+    rating: raw.rating ?? 5,
+    homestay: '',
+    comment: raw.quote,
+  };
 
   return (
     <section className="py-20 bg-gradient-to-b from-background to-primary/5 relative overflow-hidden">
@@ -119,7 +88,7 @@ export function TestimonialsSection() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">{t.name}</h4>
-                    <p className="text-sm text-muted-foreground">{t.country} · Stayed at {t.homestay}</p>
+                    <p className="text-sm text-muted-foreground">{t.country}{t.homestay ? ` · Stayed at ${t.homestay}` : ''}</p>
                   </div>
                 </div>
               </motion.div>
