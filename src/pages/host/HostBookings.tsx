@@ -130,9 +130,17 @@ export default function HostBookings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Reservations</h1>
-        <p className="text-muted-foreground text-sm mt-1">Approve, decline and track all your bookings.</p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Reservations</h1>
+          <p className="text-muted-foreground text-sm mt-1">Approve, decline and track all your bookings.</p>
+        </div>
+        {totalUnread > 0 && (
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            <MessageSquare className="w-3 h-3" />
+            {totalUnread} unread message{totalUnread === 1 ? '' : 's'}
+          </span>
+        )}
       </div>
 
       <Tabs defaultValue="pending">
