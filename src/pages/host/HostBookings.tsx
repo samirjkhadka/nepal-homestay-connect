@@ -1,12 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { useHostData, HostBooking } from '@/contexts/HostDataContext';
-import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye } from 'lucide-react';
+import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+const QUICK_REPLIES = [
+  'Thanks for booking! Looking forward to hosting you.',
+  'Yes, breakfast is included every morning.',
+  'Check-in is from 2:00 PM. Let me know your arrival time.',
+  'I\'ll share the directions and Wi-Fi details a day before check-in.',
+  'Apologies for the delay — getting back to you shortly.',
+];
+
+const READ_KEY = 'nh-host-thread-read-v1';
+const loadRead = (): Record<string, string> => {
+  try { return JSON.parse(localStorage.getItem(READ_KEY) || '{}'); } catch { return {}; }
+};
+const saveRead = (m: Record<string, string>) => {
+  try { localStorage.setItem(READ_KEY, JSON.stringify(m)); } catch { /* ignore */ }
+};
 
 const statusColors: Record<string, string> = {
   confirmed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -22,6 +38,7 @@ export default function HostBookings() {
   const [detail, setDetail] = useState<HostBooking | null>(null);
   const [chat, setChat] = useState<HostBooking | null>(null);
   const [draft, setDraft] = useState('');
+  const [readMap, setReadMap] = useState<Record<string, string>>(() => loadRead());
 
   const setStatus = (id: string, status: HostBooking['status']) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
@@ -32,15 +49,32 @@ export default function HostBookings() {
   const threadIdFor = (b: HostBooking) => `booking-${b.id}`;
   const messagesFor = (b: HostBooking) => data.messages[threadIdFor(b)] ?? [];
 
-  const sendMessage = () => {
-    if (!chat || !draft.trim()) return;
+  const unreadCountFor = (b: HostBooking) => {
+    const tid = threadIdFor(b);
+    const msgs = data.messages[tid] ?? [];
+    const lastRead = readMap[tid] ?? '1970-01-01T00:00:00Z';
+    return msgs.filter(m => m.from === 'guest' && m.at > lastRead).length;
+  };
+
+  const markRead = (b: HostBooking) => {
+    const tid = threadIdFor(b);
+    const next = { ...readMap, [tid]: new Date().toISOString() };
+    setReadMap(next); saveRead(next);
+  };
+
+  // Mark thread read when chat drawer opens
+  useEffect(() => { if (chat) markRead(chat); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [chat?.id]);
+
+  const sendMessage = (bodyOverride?: string) => {
+    const body = (bodyOverride ?? draft).trim();
+    if (!chat || !body) return;
     const tid = threadIdFor(chat);
     const next = {
       ...data.messages,
-      [tid]: [...(data.messages[tid] ?? []), { id: uid(), threadId: tid, from: 'host' as const, body: draft.trim(), at: new Date().toISOString() }],
+      [tid]: [...(data.messages[tid] ?? []), { id: uid(), threadId: tid, from: 'host' as const, body, at: new Date().toISOString() }],
     };
     update('messages', next);
-    setDraft('');
+    if (!bodyOverride) setDraft('');
   };
 
   const groups = {
@@ -50,42 +84,63 @@ export default function HostBookings() {
     cancelled: data.bookings.filter(b => b.status === 'cancelled'),
   };
 
+  const totalUnread = data.bookings.reduce((s, b) => s + unreadCountFor(b), 0);
+
   const renderList = (list: HostBooking[]) => (
     <div className="space-y-3">
       {list.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No bookings here.</p>}
-      {list.map(b => (
-        <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-          <button onClick={() => setDetail(b)} className="flex-1 text-left">
-            <div className="flex items-center gap-2">
-              <p className="font-semibold text-foreground">{b.guest}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[b.status]}`}>{b.status}</span>
+      {list.map(b => {
+        const unread = unreadCountFor(b);
+        return (
+          <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <button onClick={() => setDetail(b)} className="flex-1 text-left">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-semibold text-foreground">{b.guest}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[b.status]}`}>{b.status}</span>
+                {unread > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                    {unread} new message{unread === 1 ? '' : 's'}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
+              <p className="text-sm text-muted-foreground mt-1">{b.checkIn} → {b.checkOut} · {b.guests} guests</p>
+            </button>
+            <div className="text-right">
+              <p className="font-semibold text-foreground">NPR {b.amount.toLocaleString()}</p>
+              <div className="flex gap-1 justify-end mt-2 flex-wrap">
+                <Button size="sm" variant="ghost" onClick={() => setDetail(b)}><Eye className="w-3 h-3 mr-1" />Details</Button>
+                {b.status === 'pending' && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => setStatus(b.id, 'confirmed')}><Check className="w-3 h-3 mr-1" />Approve</Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setStatus(b.id, 'cancelled')}><X className="w-3 h-3" /></Button>
+                  </>
+                )}
+                <Button size="sm" variant={unread > 0 ? 'default' : 'ghost'} onClick={() => setChat(b)} className="relative">
+                  <MessageSquare className="w-3 h-3 mr-1" />Message
+                  {unread > 0 && <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive" />}
+                </Button>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
-            <p className="text-sm text-muted-foreground mt-1">{b.checkIn} → {b.checkOut} · {b.guests} guests</p>
-          </button>
-          <div className="text-right">
-            <p className="font-semibold text-foreground">NPR {b.amount.toLocaleString()}</p>
-            <div className="flex gap-1 justify-end mt-2 flex-wrap">
-              <Button size="sm" variant="ghost" onClick={() => setDetail(b)}><Eye className="w-3 h-3 mr-1" />Details</Button>
-              {b.status === 'pending' && (
-                <>
-                  <Button size="sm" variant="outline" onClick={() => setStatus(b.id, 'confirmed')}><Check className="w-3 h-3 mr-1" />Approve</Button>
-                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setStatus(b.id, 'cancelled')}><X className="w-3 h-3" /></Button>
-                </>
-              )}
-              <Button size="sm" variant="ghost" onClick={() => setChat(b)}><MessageSquare className="w-3 h-3 mr-1" />Message</Button>
-            </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        );
+      })}
     </div>
   );
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Reservations</h1>
-        <p className="text-muted-foreground text-sm mt-1">Approve, decline and track all your bookings.</p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Reservations</h1>
+          <p className="text-muted-foreground text-sm mt-1">Approve, decline and track all your bookings.</p>
+        </div>
+        {totalUnread > 0 && (
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            <MessageSquare className="w-3 h-3" />
+            {totalUnread} unread message{totalUnread === 1 ? '' : 's'}
+          </span>
+        )}
       </div>
 
       <Tabs defaultValue="pending">
@@ -177,16 +232,35 @@ export default function HostBookings() {
                 ))}
               </div>
 
-              <div className="border-t border-border pt-3 flex gap-2">
-                <Input
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-                  placeholder="Type a message…"
-                />
-                <Button onClick={sendMessage} disabled={!draft.trim()}>
-                  <Send className="w-4 h-4" />
-                </Button>
+              <div className="border-t border-border pt-3 space-y-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> Quick replies
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_REPLIES.map((q, i) => (
+                      <button
+                        key={i}
+                        onClick={() => sendMessage(q)}
+                        className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted text-foreground transition-colors text-left max-w-full truncate"
+                        title={q}
+                      >
+                        {q.length > 38 ? q.slice(0, 36) + '…' : q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+                    placeholder="Type a message…"
+                  />
+                  <Button onClick={() => sendMessage()} disabled={!draft.trim()}>
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </>
           )}

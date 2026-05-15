@@ -142,6 +142,28 @@ export default function HostCalendar() {
           <div><Label className="text-xs">Price/night (NPR)</Label><Input type="number" value={rangePrice} onChange={e => setRangePrice(e.target.value === '' ? '' : +e.target.value)} placeholder="e.g. 3500" /></div>
           <div className="flex items-end"><Button onClick={applyRange} className="w-full">Apply</Button></div>
         </div>
+
+        {/* Range preview */}
+        {(() => {
+          const preview = eachDay(rangeFrom, rangeTo);
+          if (!preview.length) return null;
+          const blockedInRange = preview.filter(d => data.blockedDates.includes(d));
+          const pricedInRange = preview.filter(d => data.customPricing[d] !== undefined);
+          return (
+            <div className="mt-4 p-3 rounded-lg bg-muted/40 border border-border text-sm space-y-2">
+              <p className="font-medium text-foreground">
+                Preview: {preview.length} night{preview.length === 1 ? '' : 's'}
+                {rangePrice !== '' && ` · NPR ${(+rangePrice).toLocaleString()}/night · Total NPR ${(preview.length * +rangePrice).toLocaleString()}`}
+              </p>
+              {blockedInRange.length > 0 && (
+                <p className="text-destructive text-xs">⚠ {blockedInRange.length} blocked date(s) in this range will remain blocked.</p>
+              )}
+              {pricedInRange.length > 0 && (
+                <p className="text-amber-600 dark:text-amber-400 text-xs">{pricedInRange.length} date(s) already have a custom price — applying will overwrite.</p>
+              )}
+            </div>
+          );
+        })()}
       </Card>
 
       <div className="grid md:grid-cols-2 gap-4">

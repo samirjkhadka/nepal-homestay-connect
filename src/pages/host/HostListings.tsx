@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useHostData, HostProperty } from '@/contexts/HostDataContext';
-import { Plus, Edit, Trash2, Star, MapPin, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, MapPin, Eye, EyeOff, ArrowUp, ArrowDown, X as XIcon, ImageIcon, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AMENITIES = ['WiFi', 'Hot Water', 'Breakfast', 'Mountain View', 'Parking', 'Heater', 'Laundry', 'Bonfire', 'Yoga Mat', 'Pet Friendly'];
@@ -38,8 +38,30 @@ export default function HostListings() {
     update('properties', data.properties.map(p => p.id === id ? { ...p, published: !p.published } : p));
   };
 
+  const validate = (p: HostProperty, requirePublishReady = false): string[] => {
+    const errors: string[] = [];
+    if (!p.name.trim()) errors.push('Name is required');
+    if (!p.location.trim()) errors.push('Location is required');
+    if (!p.province.trim()) errors.push('Province is required');
+    if (!p.description.trim() || p.description.trim().length < 20) errors.push('Description must be at least 20 characters');
+    if (!p.pricePerNight || p.pricePerNight <= 0) errors.push('Price per night must be greater than 0');
+    if (!p.maxGuests || p.maxGuests < 1) errors.push('Max guests must be at least 1');
+    if (!p.bedrooms || p.bedrooms < 1) errors.push('At least 1 bedroom required');
+    if (!p.coverImage.trim()) errors.push('Cover image is required');
+    if (requirePublishReady) {
+      if (p.images.length < 1) errors.push('Add at least 1 gallery image to publish');
+      if (p.amenities.length === 0) errors.push('Select at least one amenity to publish');
+    }
+    return errors;
+  };
+
   const save = (publish?: boolean) => {
     if (!editing) return;
+    const errors = validate(editing, publish === true);
+    if (errors.length) {
+      toast({ title: 'Please fix the following', description: errors.join(' • '), variant: 'destructive' as any });
+      return;
+    }
     const next = publish === undefined ? editing : { ...editing, published: publish };
     const exists = data.properties.find(p => p.id === next.id);
     update('properties', exists
@@ -140,18 +162,63 @@ function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { proper
       </TabsContent>
 
       <TabsContent value="photos" className="space-y-3 pt-4">
-        <div><Label>Cover image URL</Label><Input value={property.coverImage} onChange={e => set({ coverImage: e.target.value })} /></div>
         <div>
-          <Label>Gallery URLs (one per line)</Label>
-          <Textarea rows={6} value={property.images.join('\n')} onChange={e => set({ images: e.target.value.split('\n').filter(Boolean) })} />
+          <Label>Cover image URL <span className="text-destructive">*</span></Label>
+          <Input value={property.coverImage} onChange={e => set({ coverImage: e.target.value })} />
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {property.images.map((u, i) => (
-            <div key={i} className="aspect-square rounded overflow-hidden bg-muted">
-              <img src={u} alt="" className="w-full h-full object-cover" />
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <Label>Gallery images ({property.images.length})</Label>
+          <Button type="button" size="sm" variant="outline" onClick={() => {
+            const url = window.prompt('Image URL:', '/placeholder.svg');
+            if (url && url.trim()) set({ images: [...property.images, url.trim()] });
+          }}><Plus className="w-3 h-3 mr-1" />Add image</Button>
         </div>
+        {property.images.length === 0 && (
+          <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+            <ImageIcon className="w-6 h-6 mx-auto mb-2 opacity-50" />
+            No gallery images yet. Add at least one before publishing.
+          </div>
+        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {property.images.map((u, i) => {
+            const move = (dir: -1 | 1) => {
+              const j = i + dir;
+              if (j < 0 || j >= property.images.length) return;
+              const next = [...property.images];
+              [next[i], next[j]] = [next[j], next[i]];
+              set({ images: next });
+            };
+            const remove = () => set({ images: property.images.filter((_, k) => k !== i) });
+            const setAsCover = () => set({ coverImage: u });
+            return (
+              <div key={`${u}-${i}`} className="relative group rounded-lg overflow-hidden bg-muted border border-border">
+                <div className="aspect-square">
+                  <img src={u} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 text-xs font-medium">
+                  {i + 1}{property.coverImage === u && ' · cover'}
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-1.5 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1">
+                    <Button type="button" size="icon" variant="secondary" className="h-7 w-7" disabled={i === 0} onClick={() => move(-1)}>
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button type="button" size="icon" variant="secondary" className="h-7 w-7" disabled={i === property.images.length - 1} onClick={() => move(1)}>
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button type="button" size="sm" variant="secondary" className="h-7 text-xs" onClick={setAsCover}>Cover</Button>
+                    <Button type="button" size="icon" variant="destructive" className="h-7 w-7" onClick={remove}>
+                      <XIcon className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground">Use ↑/↓ to reorder. The first image is shown first in the listing gallery.</p>
       </TabsContent>
 
       <TabsContent value="amenities" className="space-y-4 pt-4">
@@ -196,6 +263,27 @@ function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { proper
           <Switch checked={property.published} onCheckedChange={(v) => set({ published: v })} />
         </div>
       </TabsContent>
+
+      {(() => {
+        const issues: string[] = [];
+        if (!property.name.trim()) issues.push('Name');
+        if (!property.location.trim()) issues.push('Location');
+        if (!property.description.trim() || property.description.trim().length < 20) issues.push('Description (20+ chars)');
+        if (!property.pricePerNight || property.pricePerNight <= 0) issues.push('Price/night');
+        if (!property.coverImage.trim()) issues.push('Cover image');
+        if (property.images.length === 0) issues.push('Gallery image');
+        if (property.amenities.length === 0) issues.push('Amenities');
+        if (issues.length === 0) return null;
+        return (
+          <div className="mt-4 p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-sm flex gap-2 items-start">
+            <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-destructive">Required to publish:</p>
+              <p className="text-muted-foreground text-xs mt-0.5">{issues.join(' · ')}</p>
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="pt-4 border-t border-border mt-4 flex flex-col sm:flex-row gap-2">
         <Button variant="outline" onClick={onSaveDraft} className="flex-1">Save as Draft</Button>
