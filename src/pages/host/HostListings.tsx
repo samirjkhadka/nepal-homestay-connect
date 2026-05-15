@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useHostData, HostProperty } from '@/contexts/HostDataContext';
-import { Plus, Edit, Trash2, Star, MapPin, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, MapPin, Eye, EyeOff, ArrowUp, ArrowDown, X as XIcon, ImageIcon, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AMENITIES = ['WiFi', 'Hot Water', 'Breakfast', 'Mountain View', 'Parking', 'Heater', 'Laundry', 'Bonfire', 'Yoga Mat', 'Pet Friendly'];
@@ -38,8 +38,30 @@ export default function HostListings() {
     update('properties', data.properties.map(p => p.id === id ? { ...p, published: !p.published } : p));
   };
 
+  const validate = (p: HostProperty, requirePublishReady = false): string[] => {
+    const errors: string[] = [];
+    if (!p.name.trim()) errors.push('Name is required');
+    if (!p.location.trim()) errors.push('Location is required');
+    if (!p.province.trim()) errors.push('Province is required');
+    if (!p.description.trim() || p.description.trim().length < 20) errors.push('Description must be at least 20 characters');
+    if (!p.pricePerNight || p.pricePerNight <= 0) errors.push('Price per night must be greater than 0');
+    if (!p.maxGuests || p.maxGuests < 1) errors.push('Max guests must be at least 1');
+    if (!p.bedrooms || p.bedrooms < 1) errors.push('At least 1 bedroom required');
+    if (!p.coverImage.trim()) errors.push('Cover image is required');
+    if (requirePublishReady) {
+      if (p.images.length < 1) errors.push('Add at least 1 gallery image to publish');
+      if (p.amenities.length === 0) errors.push('Select at least one amenity to publish');
+    }
+    return errors;
+  };
+
   const save = (publish?: boolean) => {
     if (!editing) return;
+    const errors = validate(editing, publish === true);
+    if (errors.length) {
+      toast({ title: 'Please fix the following', description: errors.join(' • '), variant: 'destructive' as any });
+      return;
+    }
     const next = publish === undefined ? editing : { ...editing, published: publish };
     const exists = data.properties.find(p => p.id === next.id);
     update('properties', exists
