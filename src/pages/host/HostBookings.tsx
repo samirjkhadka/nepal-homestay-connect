@@ -1,12 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { useHostData, HostBooking } from '@/contexts/HostDataContext';
-import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye } from 'lucide-react';
+import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye, Zap } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+const QUICK_REPLIES = [
+  'Thanks for booking! Looking forward to hosting you.',
+  'Yes, breakfast is included every morning.',
+  'Check-in is from 2:00 PM. Let me know your arrival time.',
+  'I\'ll share the directions and Wi-Fi details a day before check-in.',
+  'Apologies for the delay — getting back to you shortly.',
+];
+
+const READ_KEY = 'nh-host-thread-read-v1';
+const loadRead = (): Record<string, string> => {
+  try { return JSON.parse(localStorage.getItem(READ_KEY) || '{}'); } catch { return {}; }
+};
+const saveRead = (m: Record<string, string>) => {
+  try { localStorage.setItem(READ_KEY, JSON.stringify(m)); } catch { /* ignore */ }
+};
 
 const statusColors: Record<string, string> = {
   confirmed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
