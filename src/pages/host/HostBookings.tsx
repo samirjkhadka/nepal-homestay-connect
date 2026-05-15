@@ -38,6 +38,7 @@ export default function HostBookings() {
   const [detail, setDetail] = useState<HostBooking | null>(null);
   const [chat, setChat] = useState<HostBooking | null>(null);
   const [draft, setDraft] = useState('');
+  const [readMap, setReadMap] = useState<Record<string, string>>(() => loadRead());
 
   const setStatus = (id: string, status: HostBooking['status']) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
@@ -48,15 +49,32 @@ export default function HostBookings() {
   const threadIdFor = (b: HostBooking) => `booking-${b.id}`;
   const messagesFor = (b: HostBooking) => data.messages[threadIdFor(b)] ?? [];
 
-  const sendMessage = () => {
-    if (!chat || !draft.trim()) return;
+  const unreadCountFor = (b: HostBooking) => {
+    const tid = threadIdFor(b);
+    const msgs = data.messages[tid] ?? [];
+    const lastRead = readMap[tid] ?? '1970-01-01T00:00:00Z';
+    return msgs.filter(m => m.from === 'guest' && m.at > lastRead).length;
+  };
+
+  const markRead = (b: HostBooking) => {
+    const tid = threadIdFor(b);
+    const next = { ...readMap, [tid]: new Date().toISOString() };
+    setReadMap(next); saveRead(next);
+  };
+
+  // Mark thread read when chat drawer opens
+  useEffect(() => { if (chat) markRead(chat); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [chat?.id]);
+
+  const sendMessage = (bodyOverride?: string) => {
+    const body = (bodyOverride ?? draft).trim();
+    if (!chat || !body) return;
     const tid = threadIdFor(chat);
     const next = {
       ...data.messages,
-      [tid]: [...(data.messages[tid] ?? []), { id: uid(), threadId: tid, from: 'host' as const, body: draft.trim(), at: new Date().toISOString() }],
+      [tid]: [...(data.messages[tid] ?? []), { id: uid(), threadId: tid, from: 'host' as const, body, at: new Date().toISOString() }],
     };
     update('messages', next);
-    setDraft('');
+    if (!bodyOverride) setDraft('');
   };
 
   const groups = {
@@ -66,34 +84,47 @@ export default function HostBookings() {
     cancelled: data.bookings.filter(b => b.status === 'cancelled'),
   };
 
+  const totalUnread = data.bookings.reduce((s, b) => s + unreadCountFor(b), 0);
+
   const renderList = (list: HostBooking[]) => (
     <div className="space-y-3">
       {list.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">No bookings here.</p>}
-      {list.map(b => (
-        <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-          <button onClick={() => setDetail(b)} className="flex-1 text-left">
-            <div className="flex items-center gap-2">
-              <p className="font-semibold text-foreground">{b.guest}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[b.status]}`}>{b.status}</span>
+      {list.map(b => {
+        const unread = unreadCountFor(b);
+        return (
+          <Card key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <button onClick={() => setDetail(b)} className="flex-1 text-left">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-semibold text-foreground">{b.guest}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColors[b.status]}`}>{b.status}</span>
+                {unread > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                    {unread} new message{unread === 1 ? '' : 's'}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
+              <p className="text-sm text-muted-foreground mt-1">{b.checkIn} → {b.checkOut} · {b.guests} guests</p>
+            </button>
+            <div className="text-right">
+              <p className="font-semibold text-foreground">NPR {b.amount.toLocaleString()}</p>
+              <div className="flex gap-1 justify-end mt-2 flex-wrap">
+                <Button size="sm" variant="ghost" onClick={() => setDetail(b)}><Eye className="w-3 h-3 mr-1" />Details</Button>
+                {b.status === 'pending' && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => setStatus(b.id, 'confirmed')}><Check className="w-3 h-3 mr-1" />Approve</Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setStatus(b.id, 'cancelled')}><X className="w-3 h-3" /></Button>
+                  </>
+                )}
+                <Button size="sm" variant={unread > 0 ? 'default' : 'ghost'} onClick={() => setChat(b)} className="relative">
+                  <MessageSquare className="w-3 h-3 mr-1" />Message
+                  {unread > 0 && <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-destructive" />}
+                </Button>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">{b.guestEmail}</p>
-            <p className="text-sm text-muted-foreground mt-1">{b.checkIn} → {b.checkOut} · {b.guests} guests</p>
-          </button>
-          <div className="text-right">
-            <p className="font-semibold text-foreground">NPR {b.amount.toLocaleString()}</p>
-            <div className="flex gap-1 justify-end mt-2 flex-wrap">
-              <Button size="sm" variant="ghost" onClick={() => setDetail(b)}><Eye className="w-3 h-3 mr-1" />Details</Button>
-              {b.status === 'pending' && (
-                <>
-                  <Button size="sm" variant="outline" onClick={() => setStatus(b.id, 'confirmed')}><Check className="w-3 h-3 mr-1" />Approve</Button>
-                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setStatus(b.id, 'cancelled')}><X className="w-3 h-3" /></Button>
-                </>
-              )}
-              <Button size="sm" variant="ghost" onClick={() => setChat(b)}><MessageSquare className="w-3 h-3 mr-1" />Message</Button>
-            </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        );
+      })}
     </div>
   );
 
