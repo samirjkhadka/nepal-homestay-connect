@@ -264,6 +264,27 @@ function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { proper
         </div>
       </TabsContent>
 
+      {(() => {
+        const issues: string[] = [];
+        if (!property.name.trim()) issues.push('Name');
+        if (!property.location.trim()) issues.push('Location');
+        if (!property.description.trim() || property.description.trim().length < 20) issues.push('Description (20+ chars)');
+        if (!property.pricePerNight || property.pricePerNight <= 0) issues.push('Price/night');
+        if (!property.coverImage.trim()) issues.push('Cover image');
+        if (property.images.length === 0) issues.push('Gallery image');
+        if (property.amenities.length === 0) issues.push('Amenities');
+        if (issues.length === 0) return null;
+        return (
+          <div className="mt-4 p-3 rounded-lg border border-destructive/30 bg-destructive/5 text-sm flex gap-2 items-start">
+            <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium text-destructive">Required to publish:</p>
+              <p className="text-muted-foreground text-xs mt-0.5">{issues.join(' · ')}</p>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="pt-4 border-t border-border mt-4 flex flex-col sm:flex-row gap-2">
         <Button variant="outline" onClick={onSaveDraft} className="flex-1">Save as Draft</Button>
         <Button onClick={onPublish} className="flex-1">{property.published ? 'Update & Publish' : 'Publish Property'}</Button>
