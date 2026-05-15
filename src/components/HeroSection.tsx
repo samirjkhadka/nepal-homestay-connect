@@ -13,6 +13,11 @@ export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
+    // Preload all hero images so slide transitions are instant
+    topHomestays.forEach((h) => {
+      const img = new Image();
+      img.src = h.images[0];
+    });
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
     }, 7000);
@@ -38,6 +43,9 @@ export function HeroSection() {
           <img
             src={homestay.images[0]}
             alt={homestay.name}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="w-full h-full object-cover animate-ken-burns"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/45" />
@@ -45,22 +53,6 @@ export function HeroSection() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Mountain silhouette at the bottom for depth */}
-      <svg
-        viewBox="0 0 1440 200"
-        preserveAspectRatio="none"
-        className="absolute bottom-0 left-0 w-full h-24 md:h-32 z-[5] pointer-events-none"
-        aria-hidden
-      >
-        <path
-          d="M0,200 L0,140 L120,80 L240,120 L360,40 L480,100 L600,30 L720,90 L840,50 L960,110 L1080,60 L1200,100 L1320,40 L1440,90 L1440,200 Z"
-          fill="hsl(0 0% 0% / 0.55)"
-        />
-        <path
-          d="M0,200 L0,170 L120,130 L240,160 L360,110 L480,150 L600,100 L720,140 L840,115 L960,155 L1080,120 L1200,150 L1320,105 L1440,140 L1440,200 Z"
-          fill="hsl(0 0% 0% / 0.75)"
-        />
-      </svg>
 
       {/* Scroll indicator */}
       <motion.div
