@@ -224,16 +224,35 @@ export default function HostBookings() {
                 ))}
               </div>
 
-              <div className="border-t border-border pt-3 flex gap-2">
-                <Input
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-                  placeholder="Type a message…"
-                />
-                <Button onClick={sendMessage} disabled={!draft.trim()}>
-                  <Send className="w-4 h-4" />
-                </Button>
+              <div className="border-t border-border pt-3 space-y-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1">
+                    <Zap className="w-3 h-3" /> Quick replies
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_REPLIES.map((q, i) => (
+                      <button
+                        key={i}
+                        onClick={() => sendMessage(q)}
+                        className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted text-foreground transition-colors text-left max-w-full truncate"
+                        title={q}
+                      >
+                        {q.length > 38 ? q.slice(0, 36) + '…' : q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+                    placeholder="Type a message…"
+                  />
+                  <Button onClick={() => sendMessage()} disabled={!draft.trim()}>
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </>
           )}
