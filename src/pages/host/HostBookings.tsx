@@ -5,16 +5,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { useHostData, HostBooking } from '@/contexts/HostDataContext';
-import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye, Zap } from 'lucide-react';
+import { Check, X, MessageSquare, Calendar, Users, Mail, Send, Eye, Zap, Settings2, Plus, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-
-const QUICK_REPLIES = [
-  'Thanks for booking! Looking forward to hosting you.',
-  'Yes, breakfast is included every morning.',
-  'Check-in is from 2:00 PM. Let me know your arrival time.',
-  'I\'ll share the directions and Wi-Fi details a day before check-in.',
-  'Apologies for the delay — getting back to you shortly.',
-];
 
 const READ_KEY = 'nh-host-thread-read-v1';
 const loadRead = (): Record<string, string> => {
@@ -39,6 +31,16 @@ export default function HostBookings() {
   const [chat, setChat] = useState<HostBooking | null>(null);
   const [draft, setDraft] = useState('');
   const [readMap, setReadMap] = useState<Record<string, string>>(() => loadRead());
+  const [editTpl, setEditTpl] = useState(false);
+  const [newTpl, setNewTpl] = useState('');
+
+  const repliesFor = (propertyId: string): string[] => {
+    const qr = data.quickReplies ?? {};
+    return qr[propertyId] ?? qr._default ?? [];
+  };
+  const setRepliesFor = (propertyId: string, list: string[]) => {
+    update('quickReplies', { ...(data.quickReplies ?? {}), [propertyId]: list });
+  };
 
   const setStatus = (id: string, status: HostBooking['status']) => {
     update('bookings', data.bookings.map(b => b.id === id ? { ...b, status } : b));
