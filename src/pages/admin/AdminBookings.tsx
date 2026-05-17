@@ -82,7 +82,7 @@ export default function AdminBookings() {
     if (to && b.checkOut > to) return false;
     if (q && !`${b.id} ${b.guest} ${b.email} ${b.homestay}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
-  }), [status, host, from, to, q]);
+  }), [allBookings, status, host, from, to, q]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
