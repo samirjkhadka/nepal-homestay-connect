@@ -11,11 +11,13 @@ const topHomestays = getAllHomestays()
 
 export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     // Preload all hero images so slide transitions are instant
-    topHomestays.forEach((h) => {
+    topHomestays.forEach((h, idx) => {
       const img = new Image();
+      img.onload = () => setLoaded(prev => ({ ...prev, [idx]: true }));
       img.src = h.images[0];
     });
     const timer = setInterval(() => {
@@ -27,6 +29,7 @@ export function HeroSection() {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + topHomestays.length) % topHomestays.length);
   const homestay = topHomestays[currentSlide];
+  const isLoaded = loaded[currentSlide];
 
   return (
     <section className="relative h-screen min-h-[600px] max-h-[900px] md:max-h-none md:h-screen overflow-hidden">
@@ -40,13 +43,20 @@ export function HeroSection() {
           transition={{ duration: 1.2 }}
           className="absolute inset-0"
         >
+          {/* Blurred placeholder: shimmer gradient until image loads */}
+          {!isLoaded && (
+            <div className="absolute inset-0 shimmer bg-gradient-to-br from-muted via-muted/60 to-muted" />
+          )}
           <img
             src={homestay.images[0]}
             alt={homestay.name}
             loading="eager"
             decoding="async"
             fetchPriority="high"
-            className="w-full h-full object-cover animate-ken-burns"
+            onLoad={() => setLoaded(prev => ({ ...prev, [currentSlide]: true }))}
+            className={`w-full h-full object-cover animate-ken-burns transition-[filter,opacity] duration-500 ${
+              isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md scale-105'
+            }`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/45" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/45 to-transparent" />
