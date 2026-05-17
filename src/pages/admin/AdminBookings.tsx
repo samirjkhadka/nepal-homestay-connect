@@ -229,12 +229,31 @@ export default function AdminBookings() {
                   </td>
                   <td className="p-4 text-muted-foreground hidden lg:table-cell">{b.host}</td>
                   <td className="p-4 text-muted-foreground hidden lg:table-cell">{b.homestay}</td>
-                  <td className="p-4 text-muted-foreground hidden md:table-cell">{b.checkIn}</td>
-                  <td className="p-4 text-muted-foreground hidden md:table-cell">{b.checkOut}</td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusColors[b.status]}`}>
-                      {b.status}
-                    </span>
+                  <td className="p-2 hidden md:table-cell">
+                    <Input
+                      type="date" value={b.checkIn}
+                      onChange={e => updateBooking(b.id, { checkIn: e.target.value })}
+                      className="h-8 text-xs w-[140px]"
+                    />
+                  </td>
+                  <td className="p-2 hidden md:table-cell">
+                    <Input
+                      type="date" value={b.checkOut}
+                      onChange={e => updateBooking(b.id, { checkOut: e.target.value })}
+                      className="h-8 text-xs w-[140px]"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Select value={b.status} onValueChange={(v) => { updateBooking(b.id, { status: v }); toast({ title: `Booking ${b.id} → ${v}` }); }}>
+                      <SelectTrigger className={`h-8 w-[130px] text-xs capitalize ${statusColors[b.status]} border-0`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="p-4 text-right font-medium">NPR {b.amount.toLocaleString()}</td>
                 </motion.tr>
