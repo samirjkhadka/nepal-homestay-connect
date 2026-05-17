@@ -96,6 +96,7 @@ export interface HostData {
   experiences: HostExperienceOffer[];
   blockedDates: string[]; // ISO yyyy-mm-dd
   customPricing: Record<string, number>;
+  quickReplies: Record<string, string[]>; // keyed by propertyId, plus '_default'
   earnings: HostEarnings;
   profile: HostProfileData;
   settings: {
@@ -150,6 +151,15 @@ const seedHostData = (): HostData => ({
   ],
   blockedDates: [],
   customPricing: {},
+  quickReplies: {
+    _default: [
+      'Thanks for booking! Looking forward to hosting you.',
+      'Yes, breakfast is included every morning.',
+      'Check-in is from 2:00 PM. Let me know your arrival time.',
+      'I\'ll share the directions and Wi-Fi details a day before check-in.',
+      'Apologies for the delay — getting back to you shortly.',
+    ],
+  },
   earnings: {
     monthly: [
       { month: 'Jan', amount: 32000 }, { month: 'Feb', amount: 28000 },

@@ -127,12 +127,25 @@ export default function HostListings() {
 }
 
 function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { property: HostProperty; onChange: (p: HostProperty) => void; onSaveDraft: () => void; onPublish: () => void }) {
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
   const set = (patch: Partial<HostProperty>) => onChange({ ...property, ...patch });
   const setRules = (patch: Partial<HostProperty['rules']>) => onChange({ ...property, rules: { ...property.rules, ...patch } });
 
   const toggleArr = (field: 'amenities' | 'badges', val: string) => {
     const arr = property[field];
     set({ [field]: arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val] } as any);
+  };
+
+  const reorder = (from: number, to: number) => {
+    if (from === to || from < 0 || to < 0) return;
+    const next = [...property.images];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    // Cover sync: cover is stored by URL, so reordering doesn't break it.
+    // If for some reason cover URL is no longer in the list, fall back to first image.
+    const coverStillValid = next.includes(property.coverImage);
+    set({ images: next, coverImage: coverStillValid ? property.coverImage : (next[0] ?? '') });
   };
 
   return (
@@ -181,19 +194,29 @@ function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { proper
         )}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {property.images.map((u, i) => {
-            const move = (dir: -1 | 1) => {
-              const j = i + dir;
-              if (j < 0 || j >= property.images.length) return;
-              const next = [...property.images];
-              [next[i], next[j]] = [next[j], next[i]];
-              set({ images: next });
+            const move = (dir: -1 | 1) => reorder(i, i + dir);
+            const remove = () => {
+              const next = property.images.filter((_, k) => k !== i);
+              const coverStillValid = next.includes(property.coverImage);
+              set({ images: next, coverImage: coverStillValid ? property.coverImage : (next[0] ?? '') });
             };
-            const remove = () => set({ images: property.images.filter((_, k) => k !== i) });
             const setAsCover = () => set({ coverImage: u });
+            const isOver = overIdx === i && dragIdx !== null && dragIdx !== i;
             return (
-              <div key={`${u}-${i}`} className="relative group rounded-lg overflow-hidden bg-muted border border-border">
+              <div
+                key={`${u}-${i}`}
+                draggable
+                onDragStart={(e) => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move'; }}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (overIdx !== i) setOverIdx(i); }}
+                onDragLeave={() => { if (overIdx === i) setOverIdx(null); }}
+                onDrop={(e) => { e.preventDefault(); if (dragIdx !== null) reorder(dragIdx, i); setDragIdx(null); setOverIdx(null); }}
+                onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                className={`relative group rounded-lg overflow-hidden bg-muted border transition-all cursor-move ${
+                  isOver ? 'border-primary ring-2 ring-primary/40 scale-[1.02]' : 'border-border'
+                } ${dragIdx === i ? 'opacity-50' : ''}`}
+              >
                 <div className="aspect-square">
-                  <img src={u} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={u} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover pointer-events-none" />
                 </div>
                 <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-background/80 text-xs font-medium">
                   {i + 1}{property.coverImage === u && ' · cover'}
@@ -218,7 +241,7 @@ function PropertyEditor({ property, onChange, onSaveDraft, onPublish }: { proper
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground">Use ↑/↓ to reorder. The first image is shown first in the listing gallery.</p>
+        <p className="text-xs text-muted-foreground">Drag tiles to reorder, or use ↑/↓. The cover badge stays on whichever image you mark as cover.</p>
       </TabsContent>
 
       <TabsContent value="amenities" className="space-y-4 pt-4">

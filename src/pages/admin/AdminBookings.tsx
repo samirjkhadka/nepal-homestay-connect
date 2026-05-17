@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -15,7 +15,7 @@ type Booking = {
   checkIn: string; checkOut: string; guests: number; status: string; amount: number;
 };
 
-const allBookings: Booking[] = [
+const initialBookings: Booking[] = [
   { id: 'B001', guest: 'Sarah Johnson',    email: 'sarah@example.com',   phone: '+1-415-555-0142', host: 'Deepak Gurung',   homestay: 'Mountain View Retreat',   checkIn: '2026-03-10', checkOut: '2026-03-13', guests: 2, status: 'confirmed', amount: 13500 },
   { id: 'B002', guest: 'Takeshi Yamamoto', email: 'takeshi@example.com', phone: '+81-90-1234-5678', host: 'Rita Shrestha',  homestay: 'Lakeside Heritage Home',   checkIn: '2026-03-12', checkOut: '2026-03-15', guests: 3, status: 'pending',   amount: 9600 },
   { id: 'B003', guest: 'Emma Müller',      email: 'emma@example.com',    phone: '+49-30-12345678', host: 'Bishnu Tharu',    homestay: 'Tharu Cultural Homestay',  checkIn: '2026-03-08', checkOut: '2026-03-11', guests: 2, status: 'confirmed', amount: 8400 },
@@ -44,7 +44,17 @@ const csvEscape = (v: any) => {
 type SortKey = 'id' | 'guest' | 'host' | 'homestay' | 'checkIn' | 'checkOut' | 'status' | 'amount';
 const PAGE_SIZES = [10, 25, 50];
 
+const STORE_KEY = 'nh-admin-bookings-v1';
+const loadBookings = (): Booking[] => {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return initialBookings;
+};
+
 export default function AdminBookings() {
+  const [allBookings, setAllBookings] = useState<Booking[]>(() => loadBookings());
   const [status, setStatus] = useState<string>('all');
   const [host, setHost] = useState<string>('all');
   const [from, setFrom] = useState('');
@@ -55,7 +65,15 @@ export default function AdminBookings() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const hosts = useMemo(() => Array.from(new Set(allBookings.map(b => b.host))), []);
+  useEffect(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(allBookings)); } catch { /* ignore */ }
+  }, [allBookings]);
+
+  const updateBooking = (id: string, patch: Partial<Booking>) => {
+    setAllBookings(bs => bs.map(b => b.id === id ? { ...b, ...patch } : b));
+  };
+
+  const hosts = useMemo(() => Array.from(new Set(allBookings.map(b => b.host))), [allBookings]);
 
   const filtered = useMemo(() => allBookings.filter(b => {
     if (status !== 'all' && b.status !== status) return false;
@@ -64,7 +82,7 @@ export default function AdminBookings() {
     if (to && b.checkOut > to) return false;
     if (q && !`${b.id} ${b.guest} ${b.email} ${b.homestay}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
-  }), [status, host, from, to, q]);
+  }), [allBookings, status, host, from, to, q]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -211,12 +229,31 @@ export default function AdminBookings() {
                   </td>
                   <td className="p-4 text-muted-foreground hidden lg:table-cell">{b.host}</td>
                   <td className="p-4 text-muted-foreground hidden lg:table-cell">{b.homestay}</td>
-                  <td className="p-4 text-muted-foreground hidden md:table-cell">{b.checkIn}</td>
-                  <td className="p-4 text-muted-foreground hidden md:table-cell">{b.checkOut}</td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${statusColors[b.status]}`}>
-                      {b.status}
-                    </span>
+                  <td className="p-2 hidden md:table-cell">
+                    <Input
+                      type="date" value={b.checkIn}
+                      onChange={e => updateBooking(b.id, { checkIn: e.target.value })}
+                      className="h-8 text-xs w-[140px]"
+                    />
+                  </td>
+                  <td className="p-2 hidden md:table-cell">
+                    <Input
+                      type="date" value={b.checkOut}
+                      onChange={e => updateBooking(b.id, { checkOut: e.target.value })}
+                      className="h-8 text-xs w-[140px]"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Select value={b.status} onValueChange={(v) => { updateBooking(b.id, { status: v }); toast({ title: `Booking ${b.id} → ${v}` }); }}>
+                      <SelectTrigger className={`h-8 w-[130px] text-xs capitalize ${statusColors[b.status]} border-0`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="p-4 text-right font-medium">NPR {b.amount.toLocaleString()}</td>
                 </motion.tr>
