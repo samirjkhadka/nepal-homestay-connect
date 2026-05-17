@@ -236,21 +236,81 @@ export default function HostBookings() {
 
               <div className="border-t border-border pt-3 space-y-3">
                 <div>
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1">
-                    <Zap className="w-3 h-3" /> Quick replies
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {QUICK_REPLIES.map((q, i) => (
-                      <button
-                        key={i}
-                        onClick={() => sendMessage(q)}
-                        className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted text-foreground transition-colors text-left max-w-full truncate"
-                        title={q}
-                      >
-                        {q.length > 38 ? q.slice(0, 36) + '…' : q}
-                      </button>
-                    ))}
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> Quick replies for this listing
+                    </p>
+                    <button
+                      onClick={() => setEditTpl(v => !v)}
+                      className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                    >
+                      <Settings2 className="w-3 h-3" />{editTpl ? 'Done' : 'Edit'}
+                    </button>
                   </div>
+                  {!editTpl ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {repliesFor(chat.propertyId).length === 0 && (
+                        <p className="text-xs text-muted-foreground italic">No templates yet — click Edit to add some.</p>
+                      )}
+                      {repliesFor(chat.propertyId).map((q, i) => (
+                        <button
+                          key={i}
+                          onClick={() => sendMessage(q)}
+                          className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted text-foreground transition-colors text-left max-w-full truncate"
+                          title={q}
+                        >
+                          {q.length > 38 ? q.slice(0, 36) + '…' : q}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {repliesFor(chat.propertyId).map((q, i) => (
+                        <div key={i} className="flex items-center gap-1.5">
+                          <Input
+                            value={q}
+                            onChange={e => {
+                              const next = [...repliesFor(chat.propertyId)];
+                              next[i] = e.target.value;
+                              setRepliesFor(chat.propertyId, next);
+                            }}
+                            className="h-8 text-xs"
+                          />
+                          <Button
+                            size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-destructive"
+                            onClick={() => setRepliesFor(chat.propertyId, repliesFor(chat.propertyId).filter((_, k) => k !== i))}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          value={newTpl}
+                          onChange={e => setNewTpl(e.target.value)}
+                          placeholder="New template…"
+                          className="h-8 text-xs"
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && newTpl.trim()) {
+                              setRepliesFor(chat.propertyId, [...repliesFor(chat.propertyId), newTpl.trim()]);
+                              setNewTpl('');
+                            }
+                          }}
+                        />
+                        <Button
+                          size="icon" variant="outline" className="h-8 w-8 shrink-0"
+                          disabled={!newTpl.trim()}
+                          onClick={() => {
+                            setRepliesFor(chat.propertyId, [...repliesFor(chat.propertyId), newTpl.trim()]);
+                            setNewTpl('');
+                          }}
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Templates are saved per listing.</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Input
