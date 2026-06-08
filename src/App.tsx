@@ -147,11 +147,15 @@ function AnimatedRoutes() {
         <Route path="/admin/cms/navigation" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSNavigation /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/cms/theme" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSTheme /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/cms/media" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSMedia /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAuditLogs /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/verification" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminVerification /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/disputes" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminDisputes /></DashboardLayout></ProtectedRoute>} />
 
         {/* Host Routes */}
         <Route path="/host" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostDashboard /></DashboardLayout></ProtectedRoute>} />
         <Route path="/host/listings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostListings /></DashboardLayout></ProtectedRoute>} />
         <Route path="/host/calendar" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostCalendar /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/host/pricing" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostPricing /></DashboardLayout></ProtectedRoute>} />
         <Route path="/host/bookings" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostBookings /></DashboardLayout></ProtectedRoute>} />
         <Route path="/host/experiences" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostExperiences /></DashboardLayout></ProtectedRoute>} />
         <Route path="/host/inbox" element={<ProtectedRoute allowedRoles={['host']}><DashboardLayout><HostInbox /></DashboardLayout></ProtectedRoute>} />
@@ -162,6 +166,7 @@ function AnimatedRoutes() {
 
         {/* Guest Routes */}
         <Route path="/guest" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestDashboard /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/guest/rewards" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestRewards /></DashboardLayout></ProtectedRoute>} />
         <Route path="/guest/*" element={<ProtectedRoute allowedRoles={['guest']}><DashboardLayout><GuestDashboard /></DashboardLayout></ProtectedRoute>} />
 
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
