@@ -4,8 +4,10 @@ import {
   LayoutDashboard, Home, Users, CalendarCheck, BarChart3, Settings, LogOut, Menu,
   BedDouble, MessageSquare, Star, CreditCard, User, Heart, MapPin, Image as ImageIcon,
   FileText, Palette, Newspaper, Quote, Link2, PartyPopper, Sparkles, Handshake, Folder,
+  ScrollText, UserCheck, Gavel, TrendingUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from '@/components/NotificationBell';
 import { useState } from 'react';
 
 interface NavItem {
@@ -34,12 +36,16 @@ const navByRole: Record<UserRole, NavItem[]> = {
     { label: 'Theme & Branding', href: '/admin/cms/theme', icon: Palette, group: 'CMS' },
     { label: 'Media Library', href: '/admin/cms/media', icon: ImageIcon, group: 'CMS' },
 
+    { label: 'Audit Logs', href: '/admin/audit-logs', icon: ScrollText, group: 'System' },
+    { label: 'Verification', href: '/admin/verification', icon: UserCheck, group: 'System' },
+    { label: 'Disputes', href: '/admin/disputes', icon: Gavel, group: 'System' },
     { label: 'Settings', href: '/admin/settings', icon: Settings, group: 'System' },
   ],
   host: [
     { label: 'Dashboard', href: '/host', icon: LayoutDashboard, group: 'Overview' },
     { label: 'My Listings', href: '/host/listings', icon: BedDouble, group: 'Listings' },
     { label: 'Calendar', href: '/host/calendar', icon: CalendarCheck, group: 'Listings' },
+    { label: 'Pricing', href: '/host/pricing', icon: TrendingUp, group: 'Listings' },
     { label: 'Experiences', href: '/host/experiences', icon: Sparkles, group: 'Listings' },
     { label: 'Bookings', href: '/host/bookings', icon: Folder, group: 'Reservations' },
     { label: 'Inbox', href: '/host/inbox', icon: MessageSquare, group: 'Reservations' },
@@ -52,6 +58,7 @@ const navByRole: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', href: '/guest', icon: LayoutDashboard },
     { label: 'My Bookings', href: '/guest/bookings', icon: CalendarCheck },
     { label: 'Wishlist', href: '/guest/wishlist', icon: Heart },
+    { label: 'Rewards & Wallet', href: '/guest/rewards', icon: Sparkles },
     { label: 'Reviews', href: '/guest/reviews', icon: Star },
     { label: 'Profile', href: '/guest/profile', icon: User },
   ],
@@ -154,6 +161,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 ml-auto">
+            <NotificationBell />
             <Link to="/">
               <Button variant="ghost" size="sm">
                 <MapPin className="w-4 h-4 mr-1" />View Site
