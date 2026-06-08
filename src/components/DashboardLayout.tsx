@@ -161,6 +161,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 ml-auto">
+            <NotificationBell />
             <Link to="/">
               <Button variant="ghost" size="sm">
                 <MapPin className="w-4 h-4 mr-1" />View Site
