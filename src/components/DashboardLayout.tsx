@@ -4,8 +4,10 @@ import {
   LayoutDashboard, Home, Users, CalendarCheck, BarChart3, Settings, LogOut, Menu,
   BedDouble, MessageSquare, Star, CreditCard, User, Heart, MapPin, Image as ImageIcon,
   FileText, Palette, Newspaper, Quote, Link2, PartyPopper, Sparkles, Handshake, Folder,
+  ScrollText, UserCheck, Gavel, TrendingUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from '@/components/NotificationBell';
 import { useState } from 'react';
 
 interface NavItem {
