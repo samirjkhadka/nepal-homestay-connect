@@ -10,7 +10,8 @@ import {
 import { useLoyalty, TIERS, PaymentMethod } from '@/contexts/LoyaltyContext';
 import { toast } from 'sonner';
 
-const methodIcon = (t: PaymentMethod['type']) => CreditCard;
+
+
 
 const REWARDS = [
   { id: 'r1', label: 'NPR 500 off next booking', cost: 250 },
