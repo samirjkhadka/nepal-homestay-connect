@@ -180,6 +180,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
+        <AuditLogProvider>
+        <NotificationProvider>
+        <LoyaltyProvider>
         <CMSProvider>
         <HostDataProvider>
         <CurrencyProvider>
@@ -200,6 +203,9 @@ const App = () => (
         </CurrencyProvider>
         </HostDataProvider>
         </CMSProvider>
+        </LoyaltyProvider>
+        </NotificationProvider>
+        </AuditLogProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
