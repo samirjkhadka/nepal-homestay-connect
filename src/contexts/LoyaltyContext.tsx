@@ -32,12 +32,14 @@ export interface LoyaltyState {
   referrals: number;
 }
 
-export const TIERS = [
+export interface LoyaltyTier { name: string; min: number; perks: string[]; }
+
+export const TIERS: LoyaltyTier[] = [
   { name: 'Traveler', min: 0, perks: ['Member rates', 'Email support'] },
   { name: 'Explorer', min: 500, perks: ['5% off experiences', 'Priority support'] },
   { name: 'Mountaineer', min: 1500, perks: ['Late checkout', 'Free welcome meal'] },
   { name: 'Sherpa', min: 4000, perks: ['Room upgrades', 'Dedicated concierge'] },
-] as const;
+];
 
 export function tierFor(points: number) {
   let current = TIERS[0];
