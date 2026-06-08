@@ -70,6 +70,9 @@ import AdminCMSPages from "./pages/admin/AdminCMSPages";
 import AdminCMSNavigation from "./pages/admin/AdminCMSNavigation";
 import AdminCMSTheme from "./pages/admin/AdminCMSTheme";
 import AdminCMSMedia from "./pages/admin/AdminCMSMedia";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
+import AdminVerification from "./pages/admin/AdminVerification";
+import AdminDisputes from "./pages/admin/AdminDisputes";
 
 // Host pages
 import HostDashboard from "./pages/host/HostDashboard";
@@ -82,9 +85,11 @@ import HostReviews from "./pages/host/HostReviews";
 import HostEarnings from "./pages/host/HostEarnings";
 import HostProfilePage from "./pages/host/HostProfilePage";
 import HostSettings from "./pages/host/HostSettings";
+import HostPricing from "./pages/host/HostPricing";
 
 // Guest pages
 import GuestDashboard from "./pages/guest/GuestDashboard";
+import GuestRewards from "./pages/guest/GuestRewards";
 
 const queryClient = new QueryClient();
 
