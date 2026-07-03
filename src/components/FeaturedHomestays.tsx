@@ -135,7 +135,7 @@ export function FeaturedHomestays() {
                         Hosted by <span className="font-medium text-foreground">{homestay.host.name}</span>
                       </span>
                       {homestay.host.isSuperhost && (
-                        <span className="ml-auto px-2 py-0.5 rounded-full bg-accent/15 text-accent-foreground font-semibold">
+                        <span className="ml-auto px-2 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold">
                           ★ Superhost
                         </span>
                       )}
