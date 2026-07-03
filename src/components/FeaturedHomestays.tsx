@@ -129,6 +129,17 @@ export function FeaturedHomestays() {
                     <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {homestay.name}
                     </h3>
+                    <div className="flex items-center gap-1.5 mb-3 text-xs">
+                      <BadgeCheck className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-muted-foreground">
+                        Hosted by <span className="font-medium text-foreground">{homestay.host.name}</span>
+                      </span>
+                      {homestay.host.isSuperhost && (
+                        <span className="ml-auto px-2 py-0.5 rounded-full bg-accent/15 text-accent-foreground font-semibold">
+                          ★ Superhost
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-accent text-accent" />
