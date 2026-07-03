@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, MapPin, Heart, Scale } from 'lucide-react';
+import { Star, MapPin, Heart, Scale, BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getFeaturedHomestays } from '@/data/homestays';
 import { ExperienceBadges } from '@/components/ExperienceBadges';
