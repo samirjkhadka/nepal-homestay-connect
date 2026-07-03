@@ -14,9 +14,11 @@ function useCountUp(end: number, duration: number = 2000, startCounting: boolean
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setCount(Math.floor(eased * end));
+      setCount(eased * end);
       if (progress < 1) {
         animationFrame = requestAnimationFrame(animate);
+      } else {
+        setCount(end);
       }
     };
 
@@ -25,6 +27,12 @@ function useCountUp(end: number, duration: number = 2000, startCounting: boolean
   }, [end, duration, startCounting]);
 
   return count;
+}
+
+function formatCount(value: number, end: number) {
+  // Preserve one decimal for non-integer targets (e.g. 4.8 rating)
+  if (!Number.isInteger(end)) return value.toFixed(1);
+  return Math.floor(value).toLocaleString();
 }
 
 function StatCard({ icon: Icon, value, suffix, label, description, delay }: {
@@ -47,7 +55,7 @@ function StatCard({ icon: Icon, value, suffix, label, description, delay }: {
         <Icon className="w-7 h-7 text-primary" />
       </div>
       <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">
-        {count.toLocaleString()}{suffix}
+        {formatCount(count, value)}{suffix}
       </div>
       <div className="font-semibold text-foreground text-sm mb-1">{label}</div>
       <div className="text-muted-foreground text-xs">{description}</div>
@@ -55,10 +63,12 @@ function StatCard({ icon: Icon, value, suffix, label, description, delay }: {
   );
 }
 
+// Single, reconciled set of trust metrics (previously duplicated across
+// TrustStrip + ImpactSection with conflicting numbers).
 const stats = [
   { icon: Home, value: 500, suffix: '+', label: 'Homestays Listed', description: 'Authentic stays across Nepal' },
-  { icon: Users, value: 50000, suffix: '+', label: 'Happy Guests', description: 'Travelers served worldwide' },
-  { icon: MapPin, value: 75, suffix: '+', label: 'Destinations', description: 'Districts covered nationwide' },
+  { icon: Users, value: 200, suffix: '+', label: 'Verified Hosts', description: 'Trusted local families' },
+  { icon: MapPin, value: 7, suffix: '', label: 'Provinces Covered', description: 'Every corner of Nepal' },
   { icon: Star, value: 4.8, suffix: '', label: 'Average Rating', description: 'From verified guest reviews' },
 ];
 

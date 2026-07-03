@@ -169,12 +169,23 @@ export function HeroSection() {
                 <button
                   key={h.id}
                   onClick={() => setCurrentSlide(index)}
-                  className={`transition-all duration-300 rounded-full h-2 ${
+                  aria-label={`Go to slide ${index + 1}`}
+                  className={`relative overflow-hidden transition-all duration-300 rounded-full h-2 ${
                     index === currentSlide
-                      ? 'w-8 bg-white'
+                      ? 'w-10 bg-white/30'
                       : 'w-2 bg-white/40 hover:bg-white/60'
                   }`}
-                />
+                >
+                  {index === currentSlide && (
+                    <motion.span
+                      key={currentSlide}
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 7, ease: 'linear' }}
+                      className="absolute inset-y-0 left-0 bg-white rounded-full"
+                    />
+                  )}
+                </button>
               ))}
             </div>
             <div className="flex gap-2">
