@@ -6,11 +6,12 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { homestaysData } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function Wishlist() {
   const { collections, createCollection, renameCollection, deleteCollection, toggleInCollection } = useWishlist();
+  const { getById } = useHomestayStore();
   const { format } = useCurrency();
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export default function Wishlist() {
 
           <div className="space-y-10">
             {collections.map(col => {
-              const items = col.homestayIds.map(id => homestaysData[id]).filter(Boolean);
+              const items = col.homestayIds.map(id => getById(id)).filter(Boolean);
               return (
                 <section key={col.id}>
                   <div className="flex items-center justify-between mb-4">

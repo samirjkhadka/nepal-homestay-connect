@@ -4,12 +4,13 @@ import { Map, Plus, X, Route, Share2 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { homestaysData } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 import { tripRoutes } from '@/data/communityMock';
 import { toast } from 'sonner';
 
 export default function TripPlanner() {
-  const all = Object.values(homestaysData);
+  const { publicHomestays, getById } = useHomestayStore();
+  const all = publicHomestays;
   const [stops, setStops] = useState<string[]>([]);
   const [picker, setPicker] = useState(false);
 
@@ -60,7 +61,8 @@ export default function TripPlanner() {
                 ) : (
                   <ol className="space-y-3 mb-4">
                     {stops.map((id, i) => {
-                      const h = homestaysData[id];
+                      const h = getById(id);
+                      if (!h) return null;
                       return (
                         <li key={id} className="flex items-center gap-3 p-3 bg-muted/40 rounded-xl">
                           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm flex-shrink-0">
