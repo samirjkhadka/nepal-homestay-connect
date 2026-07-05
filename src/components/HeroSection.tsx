@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAllHomestays } from '@/data/homestays';
-
-const topHomestays = getAllHomestays()
-  .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
-  .slice(0, 4);
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 
 export function HeroSection() {
+  const { publicHomestays } = useHomestayStore();
+  const topHomestays = useMemo(
+    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 4),
+    [publicHomestays],
+  );
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
 
