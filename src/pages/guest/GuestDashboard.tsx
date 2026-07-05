@@ -5,14 +5,14 @@ import {
   CalendarCheck, Heart, Star, MapPin, Eye, ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAllHomestays } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 const myBookings = [
   { homestay: 'Mountain View Retreat', location: 'Pokhara', checkIn: '2026-03-10', checkOut: '2026-03-13', status: 'upcoming', amount: 13500 },
   { homestay: 'Lakeside Heritage Home', location: 'Pokhara', checkIn: '2025-12-20', checkOut: '2025-12-23', status: 'completed', amount: 9600 },
 ];
 
-const wishlist = getAllHomestays().slice(0, 3);
+
 
 const statusColors: Record<string, string> = {
   upcoming: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -20,6 +20,8 @@ const statusColors: Record<string, string> = {
 };
 
 export default function GuestDashboard() {
+  const { publicHomestays } = useHomestayStore();
+  const wishlist = publicHomestays.slice(0, 3);
   return (
     <div className="space-y-6">
       <div>
