@@ -33,6 +33,8 @@ export function HeroSection() {
   const homestay = topHomestays[currentSlide];
   const isLoaded = loaded[currentSlide];
 
+  if (!homestay) return null;
+
   return (
     <section className="relative h-screen min-h-[600px] max-h-[900px] md:max-h-none md:h-screen overflow-hidden">
       {/* Background Images with Ken-Burns */}
