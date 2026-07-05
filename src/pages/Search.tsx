@@ -7,7 +7,8 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
-import { getAllHomestays, Homestay } from '@/data/homestays';
+import { Homestay } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 const provinces = [
   'All Provinces',
@@ -38,7 +39,7 @@ export default function SearchPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('recommended');
 
-  const allHomestays = getAllHomestays();
+  const { publicHomestays: allHomestays } = useHomestayStore();
 
   const filteredHomestays = useMemo(() => {
     let results = allHomestays;
