@@ -15,6 +15,7 @@ export function HeroSection() {
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
+    if (!topHomestays.length) return;
     // Preload all hero images so slide transitions are instant
     topHomestays.forEach((h, idx) => {
       const img = new Image();
@@ -25,7 +26,7 @@ export function HeroSection() {
       setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
     }, 7000);
     return () => clearInterval(timer);
-  }, []);
+  }, [topHomestays]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + topHomestays.length) % topHomestays.length);
