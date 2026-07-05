@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Star, MapPin, Heart, Scale, BadgeCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getFeaturedHomestays } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 import { ExperienceBadges } from '@/components/ExperienceBadges';
 import { getBadgesFor } from '@/data/communityMock';
 import { useCompare } from '@/contexts/CompareContext';
@@ -21,7 +21,11 @@ const cardVariants = {
 };
 
 export function FeaturedHomestays() {
-  const featuredHomestays = getFeaturedHomestays();
+  const { publicHomestays } = useHomestayStore();
+  const featuredHomestays = (publicHomestays.filter(h => h.featured).length
+    ? publicHomestays.filter(h => h.featured)
+    : publicHomestays
+  ).slice(0, 4);
   const { has: inCompare, toggle: toggleCompare } = useCompare();
   const { collections, toggleInCollection, isSaved } = useWishlist();
   const { format } = useCurrency();

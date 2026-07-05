@@ -33,12 +33,31 @@ import { GuestPhotoWall } from '@/components/GuestPhotoWall';
 import { HostVideoIntro } from '@/components/HostVideoIntro';
 import { MobileStickyBar } from '@/components/MobileStickyBar';
 import { getBadgesFor } from '@/data/communityMock';
-import { getHomestayById, getNearbyHomestays } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 export default function HomestayDetail() {
   const { id } = useParams<{ id: string }>();
-  const homestay = getHomestayById(id || 'mountain-view-retreat') || getHomestayById('mountain-view-retreat')!;
-  const nearbyHomestays = getNearbyHomestays(id || 'mountain-view-retreat');
+  const { publicHomestays, getNearby } = useHomestayStore();
+  const homestay = publicHomestays.find(h => h.id === id) ?? publicHomestays[0];
+  const nearbyHomestays = getNearby(homestay?.id ?? '');
+
+  if (!homestay) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-32 pb-24">
+          <div className="section-container text-center">
+            <h1 className="font-display text-3xl font-bold text-foreground mb-3">Homestay not available</h1>
+            <p className="text-muted-foreground mb-6">
+              This homestay may be unlisted, disabled, or pending approval.
+            </p>
+            <Link to="/homestays" className="text-primary font-medium underline">Browse all homestays</Link>
+          </div>
+          <Footer />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

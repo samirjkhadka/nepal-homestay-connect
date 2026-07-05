@@ -1,65 +1,60 @@
-# Homepage UI/UX Upgrade — Expert Recommendations
+# Admin Homestay Management
 
-You asked for my honest read as a designer. The homepage has strong ingredients but suffers from **section bloat and redundancy** — 11 stacked sections competing for attention, with two of them showing conflicting stats. Below is a prioritized plan. Removing testimonials (your call) is folded in.
+Turn the read-only `/admin/homestays` page into a full management console: **Add, Edit, View Detail, Approve/Reject, Enable/Disable** — all persisted and reflected on the public-facing site.
 
----
+## Lifecycle & rules
+- **Status**: `pending → approved / rejected`. New homestays (admin- or host-created) start `pending`.
+- **Enabled toggle**: independent of status. An `approved` homestay can still be paused (disabled).
+- **Public visibility rule**: a homestay appears on the public site only when `status === 'approved'` AND `enabled === true`. Everything else is admin-only.
+- Every action writes an entry to the existing Audit Log (with before/after where relevant).
 
-## The core problem: too many sections, diluted trust
+## 1. Shared managed store (new context)
+Create `src/contexts/HomestayStoreContext.tsx`, following the existing `CMSContext` / `HostDataContext` localStorage pattern (key `nh-homestays-v1`).
 
-Current order:
-```
-Hero → Search → TrustStrip → Impact → Featured → Testimonials
-     → ProvinceMap → MobileApp → YouTube → Blog → Partners → Footer
-```
+- **Seed** from the static `homestaysData` in `src/data/homestays.ts`, extending each record with admin fields: `status: 'pending' | 'approved' | 'rejected'`, `enabled: boolean`, `featured: boolean`, `createdAt`, `rejectionReason?`. Seeded records default to `approved` + `enabled` so the current public site is unchanged on first load.
+- **Exposes**: `homestays` (all), `publicHomestays` (approved + enabled), and actions: `addHomestay`, `updateHomestay`, `deleteHomestay`, `approveHomestay`, `rejectHomestay(reason)`, `setEnabled(id, bool)`, `getById`.
+- Extend `Homestay` type with the admin fields in `src/data/homestays.ts`.
+- Wrap the app with `HomestayStoreProvider` in `src/App.tsx`.
 
-Two issues jump out immediately:
+## 2. Route public pages through the store
+So admin changes reflect live, update these consumers to read `publicHomestays` (approved+enabled) from the store instead of importing `getAllHomestays`/`getFeaturedHomestays` directly:
 
-1. **TrustStrip and ImpactSection are the same content twice.** TrustStrip says "10,000+ Travelers hosted", Impact says "50,000+ Happy Guests". Different numbers for the same claim reads as untrustworthy. One stats block, one set of numbers.
-2. **Testimonials feel generic** (single rotating quote, letter-avatar, no photo/verification) — agreed, remove it. Social proof should live *on the listing cards* and detail pages where it converts, not as a standalone carousel.
+`src/pages/Homestays.tsx`, `src/pages/Search.tsx`, `src/pages/HomestayDetail.tsx`, `src/pages/Wishlist.tsx`, `src/pages/TripPlanner.tsx`, `src/pages/guest/GuestDashboard.tsx`, `src/components/HeroSection.tsx`, `src/components/FeaturedHomestays.tsx`, `src/components/CompareWidget.tsx`.
 
----
+- `HomestayDetail` also guards: if an id isn't in `publicHomestays`, show the existing not-found state.
+- Date helpers (`isDateAvailable`, `getUnavailableDates`, `getNearbyHomestays`) stay as pure functions but take the record from the store.
 
-## Proposed changes (prioritized)
+## 3. Admin list page rebuild (`src/pages/admin/AdminHomestays.tsx`)
+- Read from the store (all homestays, not just approved).
+- **Status filter tabs**: All / Pending / Approved / Rejected / Disabled, with counts.
+- Keep search; add a **status badge** and an **enabled/disabled switch** per row.
+- Per-row actions: **View** (opens detail drawer), **Edit** (opens editor), **Approve** / **Reject** (shown for pending), **Enable/Disable** toggle, **Delete** (confirm dialog).
+- Pending rows get an amber highlight and inline Approve/Reject buttons; Reject opens a small reason dialog.
+- **Add Homestay** button opens the tabbed editor in create mode.
 
-### P0 — Remove & de-duplicate
-- **Remove `TestimonialsSection`** from the homepage (keep the component file + CMS data so it's reversible; just unmount from `Index.tsx`).
-- **Merge TrustStrip + ImpactSection into one "By the numbers" band** with a single reconciled set of stats (hosts, guests, provinces, rating). Keep the animated count-up from Impact, keep the compact inline layout from TrustStrip for the smaller metrics. Removes one full redundant section.
+## 4. Full tabbed editor (new component)
+`src/components/admin/HomestayEditor.tsx` — a Dialog with tabs, mirroring the Host listing editor:
+1. **Basics** — name, type, short description, long description
+2. **Location** — location, province (select of the 7 provinces), coordinates
+3. **Host** — host name, since, superhost flag, languages, expertise, bio
+4. **Pricing & Capacity** — price/night, max guests, bedrooms, bathrooms
+5. **Amenities** — multi-select chips from the existing amenity keys
+6. **Photos** — image URL list with reorder controls + cover selection (reuse the drag-reorder pattern already built for Host listings)
 
-### P1 — Tighten the flow & hierarchy
-- **Reorder for a conversion-first narrative:**
-  ```
-  Hero → Search → Stats band → Featured Homestays → Province Map
-       → Impact/Community → YouTube → Blog → Partners → Footer
-  ```
-  Rationale: get the user from "inspire" (hero) → "act" (search) → "browse" (featured) → "explore by place" (map) fast, before secondary content.
-- **Add consistent `SectionDivider` rhythm and section eyebrow labels** so each block has a clear "Featured / Explore / Stories" tag and equal vertical spacing. Right now spacing and heading styles vary section to section.
+- **Validation** before save: required name, location, province, price > 0, guests ≥ 1, at least one image. Inline field errors; save button disabled until valid.
+- Save in create mode → adds with `status: 'pending'`; edit mode → updates in place and logs a before/after diff.
+- On create/edit, fire an Audit Log entry and (optional) a Notification to admins.
 
-### P2 — Elevate the two money-makers (Hero + Featured)
-- **Hero:** add slide progress indicators (dots/bars) and a subtle preloading state polish; surface the price + "View stay" CTA more prominently on each slide so the hero rotation drives clicks, not just looks pretty.
-- **Featured Homestays cards:** add a lightweight trust signal per card (verified-host badge + "Superhost" style tag from existing `communityMock` badges), and move the wishlist/compare controls into a cleaner hover overlay. This is where real social proof belongs.
-
-### P3 — Polish pass
-- Consistent hover/focus states and card shadows across all sections (unify on the elevated shadow token).
-- Ensure a single `<h1>` (hero) with proper `<h2>` per section for SEO/accessibility.
-- Empty/loading skeletons already exist for cards — reuse them on the featured grid for perceived speed.
-
----
-
-## What I would NOT touch
-- Color system, typography, earthy theme (per project direction).
-- Search, province map, and blog logic — presentation-only refinements.
-- No backend/data-model changes; testimonials data stays in CMS for easy revert.
-
----
+## 5. View Detail drawer (new component)
+`src/components/admin/HomestayDetailDrawer.tsx` — read-only summary: gallery, status/enabled badges, host block, pricing, amenities, description, and a quick action bar (Approve/Reject/Enable-Disable/Edit) so admins can act without leaving the drawer.
 
 ## Technical notes
-- `src/pages/Index.tsx` — remove `<TestimonialsSection>`, reorder sections, drop the now-merged stats section.
-- Merge logic: fold `TrustStrip.tsx` numbers into `ImpactSection.tsx` (or a new `StatsBand.tsx`) with one reconciled `stats` array; delete the redundant mount.
-- `HeroSection.tsx` — add progress indicators + stronger per-slide CTA (presentation only).
-- `FeaturedHomestays.tsx` — add badge row using existing `getBadgesFor`, refine hover overlay.
-- All changes are frontend/presentation; testimonials component + CMS entry preserved.
+- Reuse existing shadcn `Dialog`, `Tabs`, `Switch`, `Select`, `Badge`, `AlertDialog`, `Textarea`, and `sonner` toasts.
+- Audit calls use the existing `useAuditLog().log(...)` signature (`actor: 'admin'`, actions `create|update|delete|approve|reject|publish|unpublish`).
+- New homestay ids: slugify the name + short random suffix, matching current id style.
+- No backend; all persistence via localStorage, consistent with the current architecture.
 
----
-
-## Open question
-Do you want me to **fully delete** the testimonials component/CMS page, or just **unmount it from the homepage** (keeping it editable in Admin CMS for later)? My recommendation is unmount-only — reversible and low-risk.
+## Out of scope
+- No color/typography/theme changes.
+- No real backend or auth changes.
+- Booking/pricing engines and host-side editors stay as-is (only wired for public reflection where they read homestay data).

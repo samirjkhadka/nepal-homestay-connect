@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Scale, X } from 'lucide-react';
 import { useCompare } from '@/contexts/CompareContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { homestaysData } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 import { getBadgesFor } from '@/data/communityMock';
 import { ExperienceBadges } from './ExperienceBadges';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -13,7 +13,8 @@ import { Link } from 'react-router-dom';
 export function CompareWidget() {
   const { ids, open, setOpen, toggle, clear } = useCompare();
   const { format } = useCurrency();
-  const items = ids.map(id => homestaysData[id]).filter(Boolean);
+  const { getById } = useHomestayStore();
+  const items = ids.map(id => getById(id)).filter(Boolean);
 
   return (
     <>

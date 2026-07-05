@@ -3,9 +3,10 @@ import { Star, MapPin, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { homestaysData } from '@/data/homestays';
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 const Homestays = () => {
+  const { publicHomestays } = useHomestayStore();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -29,7 +30,7 @@ const Homestays = () => {
 
       <section className="section-container py-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Object.values(homestaysData).map((homestay, index) => (
+          {publicHomestays.map((homestay, index) => (
             <motion.div
               key={homestay.id}
               initial={{ opacity: 0, y: 20 }}

@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAllHomestays } from '@/data/homestays';
-
-const topHomestays = getAllHomestays()
-  .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
-  .slice(0, 4);
+import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 
 
 export function HeroSection() {
+  const { publicHomestays } = useHomestayStore();
+  const topHomestays = useMemo(
+    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 4),
+    [publicHomestays],
+  );
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
+    if (!topHomestays.length) return;
     // Preload all hero images so slide transitions are instant
     topHomestays.forEach((h, idx) => {
       const img = new Image();
@@ -24,12 +26,14 @@ export function HeroSection() {
       setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
     }, 7000);
     return () => clearInterval(timer);
-  }, []);
+  }, [topHomestays]);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + topHomestays.length) % topHomestays.length);
   const homestay = topHomestays[currentSlide];
   const isLoaded = loaded[currentSlide];
+
+  if (!homestay) return null;
 
   return (
     <section className="relative h-screen min-h-[600px] max-h-[900px] md:max-h-none md:h-screen overflow-hidden">

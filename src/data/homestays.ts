@@ -50,7 +50,16 @@ export interface Homestay {
     icon: string;
   }[];
   bookedDates: string[];
+  // Admin management fields (optional; defaulted by HomestayStore)
+  status?: HomestayStatus;
+  enabled?: boolean;
+  featured?: boolean;
+  createdAt?: string;
+  rejectionReason?: string;
+  type?: string;
 }
+
+export type HomestayStatus = 'pending' | 'approved' | 'rejected';
 
 export const homestaysData: Record<string, Homestay> = {
   'mountain-view-retreat': {
