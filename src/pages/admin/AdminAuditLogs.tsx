@@ -180,6 +180,9 @@ export default function AdminAuditLogs() {
           </table>
         </div>
       </Card>
+      )}
+
+
 
       <Dialog open={!!detail} onOpenChange={o => !o && setDetail(null)}>
         <DialogContent className="max-w-lg">
