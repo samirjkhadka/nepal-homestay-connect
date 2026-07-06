@@ -9,7 +9,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import { ScrollText, Download, Search, ShieldAlert, Eye } from 'lucide-react';
+import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock } from 'lucide-react';
 import { useAuditLog, AuditEntry, AuditActor } from '@/contexts/AuditLogContext';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ export default function AdminAuditLogs() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [detail, setDetail] = useState<AuditEntry | null>(null);
+  const [view, setView] = useState<'table' | 'timeline'>('table');
 
   const actions = useMemo(() => Array.from(new Set(entries.map(e => e.action))).sort(), [entries]);
 
