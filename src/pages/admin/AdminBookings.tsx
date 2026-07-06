@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight, Check, X, Lock, ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAuditLog } from '@/contexts/AuditLogContext';
+import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
 
 type Booking = {
   id: string; guest: string; email: string; phone: string; host: string; homestay: string;
