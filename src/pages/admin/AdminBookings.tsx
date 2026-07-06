@@ -117,6 +117,22 @@ export default function AdminBookings() {
   const safePage = Math.min(page, totalPages);
   const pageRows = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
 
+  const pageIds = pageRows.map(b => b.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
+  const toggleRow = (id: string) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAllPage = () => setSelected(prev => { const n = new Set(prev); if (allPageSelected) pageIds.forEach(id => n.delete(id)); else pageIds.forEach(id => n.add(id)); return n; });
+  const clearSelection = () => setSelected(new Set());
+  const selectedList = useMemo(() => allBookings.filter(b => selected.has(b.id)), [allBookings, selected]);
+
+  const bulkStatus = (next: string) => {
+    const targets = selectedList.filter(b => b.status !== next);
+    targets.forEach(b => updateBooking(b.id, { status: next }));
+    log({ actor: 'admin', actorName, action: next === 'cancelled' ? 'cancel' : 'update', entity: 'Booking', summary: `Bulk set ${targets.length} bookings to ${next}`, after: { ids: targets.map(t => t.id) } });
+    toast({ title: `Updated ${targets.length} bookings`, description: `Status → ${next}` });
+    clearSelection();
+  };
+
+
   const toggleSort = (k: SortKey) => {
     if (sortKey === k) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortKey(k); setSortDir('asc'); }
