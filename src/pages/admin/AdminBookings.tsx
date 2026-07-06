@@ -69,6 +69,13 @@ export default function AdminBookings() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const { user, can, adminRole } = useAuth();
+  const { log } = useAuditLog();
+  const actorName = user?.name ?? 'Admin';
+  const canEdit = can('booking.edit');
+  const canCancel = can('booking.cancel');
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(allBookings)); } catch { /* ignore */ }
@@ -76,6 +83,12 @@ export default function AdminBookings() {
 
   const updateBooking = (id: string, patch: Partial<Booking>) => {
     setAllBookings(bs => bs.map(b => b.id === id ? { ...b, ...patch } : b));
+  };
+
+  const changeStatus = (b: Booking, next: string) => {
+    updateBooking(b.id, { status: next });
+    log({ actor: 'admin', actorName, action: next === 'cancelled' ? 'cancel' : 'update', entity: 'Booking', entityId: b.id, summary: `Booking ${b.id} status ${b.status} → ${next}`, before: { status: b.status }, after: { status: next } });
+    toast({ title: `Booking ${b.id} → ${next}` });
   };
 
   const hosts = useMemo(() => Array.from(new Set(allBookings.map(b => b.host))), [allBookings]);
