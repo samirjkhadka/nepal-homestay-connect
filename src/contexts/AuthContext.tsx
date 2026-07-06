@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { AdminRole, AdminPermission, roleHasPermission } from '@/lib/permissions';
 
 export type UserRole = 'admin' | 'host' | 'guest';
 
@@ -8,10 +9,12 @@ export interface MockUser {
   email: string;
   role: UserRole;
   avatar: string;
+  /** Sub-role for admin RBAC. Only relevant when role === 'admin'. */
+  adminRole?: AdminRole;
 }
 
 const mockUsers: Record<string, MockUser> = {
-  'admin@nepali.com': { id: '1', name: 'Suraj Admin', email: 'admin@nepali.com', role: 'admin', avatar: 'S' },
+  'admin@nepali.com': { id: '1', name: 'Suraj Admin', email: 'admin@nepali.com', role: 'admin', avatar: 'S', adminRole: 'super' },
   'host@nepali.com': { id: '2', name: 'Ram Host', email: 'host@nepali.com', role: 'host', avatar: 'R' },
   'guest@nepali.com': { id: '3', name: 'Sarah Guest', email: 'guest@nepali.com', role: 'guest', avatar: 'S' },
 };
@@ -21,6 +24,9 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  /** Returns true when the current admin user holds the given permission. */
+  can: (permission: AdminPermission) => boolean;
+  adminRole: AdminRole | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -47,8 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('nh-auth-user');
   };
 
+  const adminRole = user?.role === 'admin' ? (user.adminRole ?? 'super') : undefined;
+  const can = (permission: AdminPermission) => roleHasPermission(adminRole, permission);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, can, adminRole }}>
       {children}
     </AuthContext.Provider>
   );
