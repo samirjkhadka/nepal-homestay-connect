@@ -136,6 +136,7 @@ export default function AdminAuditLogs() {
         </div>
       </Card>
 
+      {view === 'table' && (
       <Card className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
