@@ -272,6 +272,7 @@ export default function AdminBookings() {
                 <motion.tr key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i, 6) * 0.04 }}
                   className="border-t border-border hover:bg-muted/30 transition-colors"
                 >
+                  <td className="p-3"><Checkbox checked={selected.has(b.id)} onCheckedChange={() => toggleRow(b.id)} aria-label={`Select ${b.id}`} /></td>
                   <td className="p-4 font-mono text-xs">{b.id}</td>
                   <td className="p-4">
                     <p className="font-medium text-foreground">{b.guest}</p>
