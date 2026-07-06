@@ -266,7 +266,7 @@ export default function AdminBookings() {
             </thead>
             <tbody>
               {pageRows.length === 0 && (
-                <tr><td colSpan={8} className="p-10 text-center text-muted-foreground">No bookings match these filters.</td></tr>
+                <tr><td colSpan={9} className="p-10 text-center text-muted-foreground">No bookings match these filters.</td></tr>
               )}
               {pageRows.map((b, i) => (
                 <motion.tr key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i, 6) * 0.04 }}
