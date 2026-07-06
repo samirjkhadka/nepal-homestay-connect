@@ -249,6 +249,7 @@ export default function AdminBookings() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr className="text-left text-muted-foreground">
+                <th className="p-3 w-10"><Checkbox checked={allPageSelected} onCheckedChange={toggleAllPage} aria-label="Select all" /></th>
                 <SortableTH k="id">Booking ID</SortableTH>
                 <SortableTH k="guest">Guest</SortableTH>
                 <SortableTH k="host" className="hidden lg:table-cell">Host</SortableTH>
