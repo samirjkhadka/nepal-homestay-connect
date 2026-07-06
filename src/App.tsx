@@ -16,6 +16,7 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { CMSProvider } from "@/contexts/CMSContext";
 import { HostDataProvider } from "@/contexts/HostDataContext";
 import { HomestayStoreProvider } from "@/contexts/HomestayStoreContext";
+import { UserStoreProvider } from "@/contexts/UserStoreContext";
 import { AuditLogProvider } from "@/contexts/AuditLogContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { LoyaltyProvider } from "@/contexts/LoyaltyContext";
@@ -187,6 +188,7 @@ const App = () => (
         <CMSProvider>
         <HostDataProvider>
         <HomestayStoreProvider>
+        <UserStoreProvider>
         <CurrencyProvider>
           <WishlistProvider>
             <CompareProvider>
@@ -203,6 +205,7 @@ const App = () => (
             </CompareProvider>
           </WishlistProvider>
         </CurrencyProvider>
+        </UserStoreProvider>
         </HomestayStoreProvider>
         </HostDataProvider>
         </CMSProvider>

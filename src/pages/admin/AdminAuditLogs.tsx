@@ -9,7 +9,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import { ScrollText, Download, Search, ShieldAlert, Eye } from 'lucide-react';
+import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock } from 'lucide-react';
 import { useAuditLog, AuditEntry, AuditActor } from '@/contexts/AuditLogContext';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ export default function AdminAuditLogs() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [detail, setDetail] = useState<AuditEntry | null>(null);
+  const [view, setView] = useState<'table' | 'timeline'>('table');
 
   const actions = useMemo(() => Array.from(new Set(entries.map(e => e.action))).sort(), [entries]);
 
@@ -71,9 +72,37 @@ export default function AdminAuditLogs() {
           <p className="text-muted-foreground text-sm mt-1">Immutable activity trail across the platform</p>
         </div>
         <div className="flex gap-2">
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            <button onClick={() => setView('table')} className={`px-3 py-1.5 text-sm flex items-center gap-1 ${view === 'table' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}><List className="w-4 h-4" />Table</button>
+            <button onClick={() => setView('timeline')} className={`px-3 py-1.5 text-sm flex items-center gap-1 ${view === 'timeline' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}><Clock className="w-4 h-4" />Timeline</button>
+          </div>
           <Button variant="outline" onClick={exportCsv}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
         </div>
       </div>
+
+      {view === 'timeline' && (
+        <Card className="p-6">
+          {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">No matching log entries.</p>}
+          <ol className="relative border-l border-border ml-2">
+            {filtered.map(e => (
+              <li key={e.id} className="ml-6 pb-6 last:pb-0">
+                <span className={`absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-full ring-4 ring-background ${CRITICAL.has(e.action) ? 'bg-amber-500' : 'bg-primary'}`} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${actorColors[e.actor]}`}>{e.actor}</span>
+                  <span className="text-sm font-medium text-foreground">{e.actorName}</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-muted capitalize flex items-center gap-1">
+                    {CRITICAL.has(e.action) && <ShieldAlert className="w-3 h-3 text-amber-500" />}{e.action}
+                  </span>
+                  <span className="text-xs text-muted-foreground">· {e.entity}{e.entityId && <span className="font-mono ml-1">{e.entityId}</span>}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">{fmt(e.at)}</span>
+                </div>
+                <p className="text-sm text-foreground mt-1">{e.summary}</p>
+                <button className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1" onClick={() => setDetail(e)}><Eye className="w-3 h-3" />View details</button>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
 
       <Card className="p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -107,6 +136,7 @@ export default function AdminAuditLogs() {
         </div>
       </Card>
 
+      {view === 'table' && (
       <Card className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -150,6 +180,9 @@ export default function AdminAuditLogs() {
           </table>
         </div>
       </Card>
+      )}
+
+
 
       <Dialog open={!!detail} onOpenChange={o => !o && setDetail(null)}>
         <DialogContent className="max-w-lg">

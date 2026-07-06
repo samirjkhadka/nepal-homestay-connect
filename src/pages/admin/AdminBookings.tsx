@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight, Check, X, Lock, ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAuditLog } from '@/contexts/AuditLogContext';
+import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
 
 type Booking = {
   id: string; guest: string; email: string; phone: string; host: string; homestay: string;
@@ -64,6 +69,13 @@ export default function AdminBookings() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const { user, can, adminRole } = useAuth();
+  const { log } = useAuditLog();
+  const actorName = user?.name ?? 'Admin';
+  const canEdit = can('booking.edit');
+  const canCancel = can('booking.cancel');
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(allBookings)); } catch { /* ignore */ }
@@ -71,6 +83,12 @@ export default function AdminBookings() {
 
   const updateBooking = (id: string, patch: Partial<Booking>) => {
     setAllBookings(bs => bs.map(b => b.id === id ? { ...b, ...patch } : b));
+  };
+
+  const changeStatus = (b: Booking, next: string) => {
+    updateBooking(b.id, { status: next });
+    log({ actor: 'admin', actorName, action: next === 'cancelled' ? 'cancel' : 'update', entity: 'Booking', entityId: b.id, summary: `Booking ${b.id} status ${b.status} → ${next}`, before: { status: b.status }, after: { status: next } });
+    toast({ title: `Booking ${b.id} → ${next}` });
   };
 
   const hosts = useMemo(() => Array.from(new Set(allBookings.map(b => b.host))), [allBookings]);
@@ -98,6 +116,22 @@ export default function AdminBookings() {
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const pageRows = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  const pageIds = pageRows.map(b => b.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
+  const toggleRow = (id: string) => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAllPage = () => setSelected(prev => { const n = new Set(prev); if (allPageSelected) pageIds.forEach(id => n.delete(id)); else pageIds.forEach(id => n.add(id)); return n; });
+  const clearSelection = () => setSelected(new Set());
+  const selectedList = useMemo(() => allBookings.filter(b => selected.has(b.id)), [allBookings, selected]);
+
+  const bulkStatus = (next: string) => {
+    const targets = selectedList.filter(b => b.status !== next);
+    targets.forEach(b => updateBooking(b.id, { status: next }));
+    log({ actor: 'admin', actorName, action: next === 'cancelled' ? 'cancel' : 'update', entity: 'Booking', summary: `Bulk set ${targets.length} bookings to ${next}`, after: { ids: targets.map(t => t.id) } });
+    toast({ title: `Updated ${targets.length} bookings`, description: `Status → ${next}` });
+    clearSelection();
+  };
+
 
   const toggleSort = (k: SortKey) => {
     if (sortKey === k) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -147,11 +181,26 @@ export default function AdminBookings() {
           <h1 className="text-2xl font-bold text-foreground">Manage Bookings</h1>
           <p className="text-muted-foreground text-sm mt-1">{sorted.length} of {allBookings.length} bookings</p>
         </div>
-        <Button onClick={exportCSV}>
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex items-center gap-3">
+          {adminRole && <Badge variant="outline" className="gap-1"><ShieldCheck className="w-3.5 h-3.5 text-primary" />{ADMIN_ROLE_LABELS[adminRole]}</Badge>}
+          <Button onClick={exportCSV}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
+
+      {selected.size > 0 && (
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
+            <span className="text-sm font-medium mr-2">{selected.size} selected</span>
+            <Button size="sm" variant="outline" disabled={!canEdit} onClick={() => bulkStatus('confirmed')}>{canEdit ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Confirm</Button>
+            <Button size="sm" variant="outline" disabled={!canEdit} onClick={() => bulkStatus('pending')}>{canEdit ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Mark pending</Button>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canCancel} onClick={() => bulkStatus('cancelled')}>{canCancel ? <X className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Cancel</Button>
+            <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
+          </Card>
+        </motion.div>
+      )}
 
       <Card className="p-4">
         <div className="grid gap-3 md:grid-cols-6">
@@ -200,6 +249,7 @@ export default function AdminBookings() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr className="text-left text-muted-foreground">
+                <th className="p-3 w-10"><Checkbox checked={allPageSelected} onCheckedChange={toggleAllPage} aria-label="Select all" /></th>
                 <SortableTH k="id">Booking ID</SortableTH>
                 <SortableTH k="guest">Guest</SortableTH>
                 <SortableTH k="host" className="hidden lg:table-cell">Host</SortableTH>
@@ -216,12 +266,13 @@ export default function AdminBookings() {
             </thead>
             <tbody>
               {pageRows.length === 0 && (
-                <tr><td colSpan={8} className="p-10 text-center text-muted-foreground">No bookings match these filters.</td></tr>
+                <tr><td colSpan={9} className="p-10 text-center text-muted-foreground">No bookings match these filters.</td></tr>
               )}
               {pageRows.map((b, i) => (
                 <motion.tr key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i, 6) * 0.04 }}
                   className="border-t border-border hover:bg-muted/30 transition-colors"
                 >
+                  <td className="p-3"><Checkbox checked={selected.has(b.id)} onCheckedChange={() => toggleRow(b.id)} aria-label={`Select ${b.id}`} /></td>
                   <td className="p-4 font-mono text-xs">{b.id}</td>
                   <td className="p-4">
                     <p className="font-medium text-foreground">{b.guest}</p>
@@ -244,7 +295,7 @@ export default function AdminBookings() {
                     />
                   </td>
                   <td className="p-2">
-                    <Select value={b.status} onValueChange={(v) => { updateBooking(b.id, { status: v }); toast({ title: `Booking ${b.id} → ${v}` }); }}>
+                    <Select value={b.status} disabled={!canEdit} onValueChange={(v) => changeStatus(b, v)}>
                       <SelectTrigger className={`h-8 w-[130px] text-xs capitalize ${statusColors[b.status]} border-0`}>
                         <SelectValue />
                       </SelectTrigger>
