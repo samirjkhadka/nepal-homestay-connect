@@ -181,11 +181,26 @@ export default function AdminBookings() {
           <h1 className="text-2xl font-bold text-foreground">Manage Bookings</h1>
           <p className="text-muted-foreground text-sm mt-1">{sorted.length} of {allBookings.length} bookings</p>
         </div>
-        <Button onClick={exportCSV}>
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex items-center gap-3">
+          {adminRole && <Badge variant="outline" className="gap-1"><ShieldCheck className="w-3.5 h-3.5 text-primary" />{ADMIN_ROLE_LABELS[adminRole]}</Badge>}
+          <Button onClick={exportCSV}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
+
+      {selected.size > 0 && (
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
+            <span className="text-sm font-medium mr-2">{selected.size} selected</span>
+            <Button size="sm" variant="outline" disabled={!canEdit} onClick={() => bulkStatus('confirmed')}>{canEdit ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Confirm</Button>
+            <Button size="sm" variant="outline" disabled={!canEdit} onClick={() => bulkStatus('pending')}>{canEdit ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Mark pending</Button>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canCancel} onClick={() => bulkStatus('cancelled')}>{canCancel ? <X className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Cancel</Button>
+            <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
+          </Card>
+        </motion.div>
+      )}
 
       <Card className="p-4">
         <div className="grid gap-3 md:grid-cols-6">
