@@ -30,7 +30,7 @@ const genId = () => `u-${Date.now().toString(36)}-${Math.random().toString(36).s
 
 interface UserStoreContextType {
   users: ManagedUser[];
-  addUser: (data: Omit<ManagedUser, 'id' | 'bookings'> & Partial<ManagedUser>) => ManagedUser;
+  addUser: (data: Partial<ManagedUser> & { name: string; email: string }) => ManagedUser;
   updateUser: (id: string, patch: Partial<ManagedUser>) => void;
   deleteUser: (id: string) => void;
   setStatus: (id: string, status: ManagedUserStatus) => void;
