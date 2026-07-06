@@ -295,7 +295,7 @@ export default function AdminBookings() {
                     />
                   </td>
                   <td className="p-2">
-                    <Select value={b.status} onValueChange={(v) => { updateBooking(b.id, { status: v }); toast({ title: `Booking ${b.id} → ${v}` }); }}>
+                    <Select value={b.status} disabled={!canEdit} onValueChange={(v) => changeStatus(b, v)}>
                       <SelectTrigger className={`h-8 w-[130px] text-xs capitalize ${statusColors[b.status]} border-0`}>
                         <SelectValue />
                       </SelectTrigger>
