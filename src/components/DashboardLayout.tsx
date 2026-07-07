@@ -23,6 +23,7 @@ const navByRole: Record<UserRole, NavItem[]> = {
     { label: 'Bookings', href: '/admin/bookings', icon: CalendarCheck, group: 'Overview' },
     { label: 'Users', href: '/admin/users', icon: Users, group: 'Overview' },
     { label: 'Homestays', href: '/admin/homestays', icon: Home, group: 'Overview' },
+    { label: 'Packages', href: '/admin/packages', icon: Folder, group: 'Overview' },
     { label: 'Analytics', href: '/admin/analytics', icon: BarChart3, group: 'Overview' },
 
     { label: 'Hero & Landing', href: '/admin/cms/hero', icon: Sparkles, group: 'CMS' },
@@ -30,6 +31,8 @@ const navByRole: Record<UserRole, NavItem[]> = {
     { label: 'Festivals', href: '/admin/cms/festivals', icon: PartyPopper, group: 'CMS' },
     { label: 'Experiences', href: '/admin/cms/experiences', icon: Star, group: 'CMS' },
     { label: 'Blog', href: '/admin/cms/blogs', icon: Newspaper, group: 'CMS' },
+    { label: 'Blogs & News', href: '/admin/blogs', icon: Newspaper, group: 'CMS' },
+    { label: 'Content & Taxonomy', href: '/admin/content', icon: FileText, group: 'CMS' },
     { label: 'Testimonials', href: '/admin/cms/testimonials', icon: Quote, group: 'CMS' },
     { label: 'Static Pages', href: '/admin/cms/pages', icon: FileText, group: 'CMS' },
     { label: 'Navigation & Footer', href: '/admin/cms/navigation', icon: Link2, group: 'CMS' },
