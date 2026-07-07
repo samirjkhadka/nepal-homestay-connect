@@ -17,6 +17,9 @@ import { CMSProvider } from "@/contexts/CMSContext";
 import { HostDataProvider } from "@/contexts/HostDataContext";
 import { HomestayStoreProvider } from "@/contexts/HomestayStoreContext";
 import { UserStoreProvider } from "@/contexts/UserStoreContext";
+import { ArticleStoreProvider } from "@/contexts/ArticleStoreContext";
+import { PackageStoreProvider } from "@/contexts/PackageStoreContext";
+import { ContentStoreProvider } from "@/contexts/ContentStoreContext";
 import { AuditLogProvider } from "@/contexts/AuditLogContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { LoyaltyProvider } from "@/contexts/LoyaltyContext";
@@ -60,6 +63,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminHomestays from "./pages/admin/AdminHomestays";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AdminPackages from "./pages/admin/AdminPackages";
+import AdminContent from "./pages/admin/AdminContent";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminCMSHero from "./pages/admin/AdminCMSHero";
@@ -137,6 +143,9 @@ function AnimatedRoutes() {
         <Route path="/admin/homestays" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminHomestays /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/bookings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminBookings /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/blogs" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminBlogs /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/packages" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminPackages /></DashboardLayout></ProtectedRoute>} />
+        <Route path="/admin/content" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminContent /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminAnalytics /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminSettings /></DashboardLayout></ProtectedRoute>} />
         <Route path="/admin/cms/hero" element={<ProtectedRoute allowedRoles={['admin']}><DashboardLayout><AdminCMSHero /></DashboardLayout></ProtectedRoute>} />
@@ -189,6 +198,9 @@ const App = () => (
         <HostDataProvider>
         <HomestayStoreProvider>
         <UserStoreProvider>
+        <ArticleStoreProvider>
+        <PackageStoreProvider>
+        <ContentStoreProvider>
         <CurrencyProvider>
           <WishlistProvider>
             <CompareProvider>
@@ -205,6 +217,9 @@ const App = () => (
             </CompareProvider>
           </WishlistProvider>
         </CurrencyProvider>
+        </ContentStoreProvider>
+        </PackageStoreProvider>
+        </ArticleStoreProvider>
         </UserStoreProvider>
         </HomestayStoreProvider>
         </HostDataProvider>
