@@ -62,6 +62,7 @@ export default function AdminUsers() {
   const [editing, setEditing] = useState<ManagedUser | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [deleteTarget, setDeleteTarget] = useState<ManagedUser | null>(null);
+  const [bulkAction, setBulkAction] = useState<null | 'activate' | 'deactivate' | 'delete'>(null);
 
   const canCreate = can('user.create');
   const canEdit = can('user.edit');
