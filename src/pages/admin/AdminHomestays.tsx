@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
 import { HomestayEditor } from '@/components/admin/HomestayEditor';
 import { HomestayDetailDrawer } from '@/components/admin/HomestayDetailDrawer';
+import { BulkConfirmDialog, BulkTarget, BulkItemResult } from '@/components/admin/BulkConfirmDialog';
 
 const statusStyle: Record<HomestayStatus, string> = {
   pending: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
