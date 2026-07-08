@@ -145,19 +145,44 @@ export default function AdminUsers() {
     setDeleteTarget(null);
   };
 
-  const bulkSetStatus = (status: ManagedUserStatus) => {
-    const targets = selectedList.filter(u => u.status !== status);
-    targets.forEach(u => setStatus(u.id, status));
-    log({ actor: 'admin', actorName, action: status === 'active' ? 'publish' : 'unpublish', entity: 'User', summary: `Bulk set ${targets.length} users to ${status}`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Updated ${targets.length} users`);
-    clearSelection();
+  // Bulk actions (via BulkConfirmDialog for per-item feedback)
+  const bulkTargets: BulkTarget[] = useMemo(
+    () => selectedList.map(u => ({ id: u.id, label: `${u.name} (${u.email})` })),
+    [selectedList],
+  );
+
+  const runBulkItem = (target: BulkTarget): BulkItemResult => {
+    const u = users.find(x => x.id === target.id);
+    if (!u) return { id: target.id, label: target.label, ok: false, message: 'Not found' };
+    switch (bulkAction) {
+      case 'activate':
+        if (u.status === 'active') return { id: u.id, label: target.label, ok: false, message: 'Already active' };
+        setStatus(u.id, 'active');
+        return { id: u.id, label: target.label, ok: true, message: 'Activated' };
+      case 'deactivate':
+        if (u.status === 'inactive') return { id: u.id, label: target.label, ok: false, message: 'Already inactive' };
+        setStatus(u.id, 'inactive');
+        return { id: u.id, label: target.label, ok: true, message: 'Deactivated' };
+      case 'delete':
+        deleteUser(u.id);
+        return { id: u.id, label: target.label, ok: true, message: 'Deleted' };
+      default:
+        return { id: u.id, label: target.label, ok: false, message: 'Unknown action' };
+    }
   };
-  const bulkDelete = () => {
-    const targets = [...selectedList];
-    targets.forEach(u => deleteUser(u.id));
-    log({ actor: 'admin', actorName, action: 'delete', entity: 'User', summary: `Bulk deleted ${targets.length} users`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Deleted ${targets.length} users`);
-    clearSelection();
+
+  const completeBulk = (results: BulkItemResult[]) => {
+    const done = results.filter(r => r.ok);
+    if (done.length > 0) {
+      const action = bulkAction === 'delete' ? 'delete' : bulkAction === 'activate' ? 'publish' : 'unpublish';
+      log({
+        actor: 'admin', actorName, action, entity: 'User',
+        summary: `Bulk ${bulkAction}d ${done.length} user${done.length === 1 ? '' : 's'}`,
+        after: { ids: done.map(r => r.id) },
+      });
+      clearSelection();
+    }
+    setBulkAction(null);
   };
 
   const SortTH = ({ k, children, className = '' }: { k: SortKey; children: React.ReactNode; className?: string }) => (
