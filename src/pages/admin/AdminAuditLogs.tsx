@@ -29,19 +29,25 @@ function fmt(iso: string) {
 
 export default function AdminAuditLogs() {
   const { entries, clear } = useAuditLog();
+  const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [actor, setActor] = useState('all');
   const [action, setAction] = useState('all');
+  const [entity, setEntity] = useState('all');
+  const [entityId, setEntityId] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [detail, setDetail] = useState<AuditEntry | null>(null);
   const [view, setView] = useState<'table' | 'timeline'>('table');
 
   const actions = useMemo(() => Array.from(new Set(entries.map(e => e.action))).sort(), [entries]);
+  const entities = useMemo(() => Array.from(new Set(entries.map(e => e.entity))).sort(), [entries]);
 
   const filtered = useMemo(() => entries.filter(e => {
     if (actor !== 'all' && e.actor !== actor) return false;
     if (action !== 'all' && e.action !== action) return false;
+    if (entity !== 'all' && e.entity !== entity) return false;
+    if (entityId && !(e.entityId ?? '').toLowerCase().includes(entityId.toLowerCase())) return false;
     if (from && e.at < from) return false;
     if (to && e.at > to + 'T23:59:59') return false;
     if (q) {
@@ -49,7 +55,23 @@ export default function AdminAuditLogs() {
       if (!hay.includes(q.toLowerCase())) return false;
     }
     return true;
-  }), [entries, actor, action, from, to, q]);
+  }), [entries, actor, action, entity, entityId, from, to, q]);
+
+  // Map an audit entry to a destination route for quick-jump navigation.
+  const jumpTarget = (e: AuditEntry): string | null => {
+    if (!e.entityId) return null;
+    switch (e.entity) {
+      case 'Homestay': return `/homestay/${e.entityId}`;
+      case 'Listing': return '/admin/homestays';
+      case 'User':
+      case 'Host Application': return '/admin/users';
+      case 'Booking': return '/admin/bookings';
+      default: return null;
+    }
+  };
+  const resetFilters = () => {
+    setQ(''); setActor('all'); setAction('all'); setEntity('all'); setEntityId(''); setFrom(''); setTo('');
+  };
 
   const exportCsv = () => {
     const headers = ['Timestamp', 'Actor', 'Name', 'Action', 'Entity', 'Entity ID', 'Summary', 'IP'];
