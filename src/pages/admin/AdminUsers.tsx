@@ -25,6 +25,7 @@ import { useUserStore, ManagedUser, ManagedUserRole, ManagedUserStatus } from '@
 import { useAuditLog } from '@/contexts/AuditLogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
+import { BulkConfirmDialog, BulkTarget, BulkItemResult } from '@/components/admin/BulkConfirmDialog';
 
 const roleColors: Record<string, string> = {
   admin: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
