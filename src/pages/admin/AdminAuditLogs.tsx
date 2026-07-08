@@ -207,7 +207,10 @@ export default function AdminAuditLogs() {
                     {e.entity}{e.entityId && <span className="font-mono text-xs ml-1">{e.entityId}</span>}
                   </td>
                   <td className="px-4 py-3 text-foreground max-w-md">{e.summary}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    {jumpTarget(e) && (
+                      <Button variant="ghost" size="sm" title={`Jump to ${e.entity}`} onClick={() => navigate(jumpTarget(e)!)}><ExternalLink className="w-4 h-4" /></Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => setDetail(e)}><Eye className="w-4 h-4" /></Button>
                   </td>
                 </tr>
