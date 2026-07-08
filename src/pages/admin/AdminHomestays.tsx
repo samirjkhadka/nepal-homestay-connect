@@ -209,27 +209,48 @@ export default function AdminHomestays() {
     setDeleteTarget(null);
   };
 
-  // Bulk actions
-  const bulkApprove = () => {
-    const targets = selectedList.filter(h => h.status !== 'approved');
-    targets.forEach(h => approveHomestay(h.id));
-    log({ actor: 'admin', actorName, action: 'approve', entity: 'Homestay', summary: `Bulk approved ${targets.length} homestays`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Approved ${targets.length} homestays`);
-    clearSelection();
+  // Bulk actions (handled via BulkConfirmDialog for per-item feedback)
+  const bulkTargets: BulkTarget[] = useMemo(
+    () => selectedList.map(h => ({ id: h.id, label: h.name })),
+    [selectedList],
+  );
+
+  const runBulkItem = (target: BulkTarget, reason: string): BulkItemResult => {
+    const h = homestays.find(x => x.id === target.id);
+    if (!h) return { id: target.id, label: target.label, ok: false, message: 'Not found' };
+    switch (bulkAction) {
+      case 'approve':
+        if (h.status === 'approved') return { id: h.id, label: h.name, ok: false, message: 'Already approved' };
+        approveHomestay(h.id);
+        return { id: h.id, label: h.name, ok: true, message: 'Approved and live' };
+      case 'reject':
+        if (h.status === 'rejected') return { id: h.id, label: h.name, ok: false, message: 'Already rejected' };
+        rejectHomestay(h.id, reason || 'No reason provided');
+        return { id: h.id, label: h.name, ok: true, message: 'Rejected' };
+      case 'enable':
+        if (h.enabled !== false) return { id: h.id, label: h.name, ok: false, message: 'Already enabled' };
+        setEnabled(h.id, true);
+        return { id: h.id, label: h.name, ok: true, message: 'Enabled' };
+      case 'disable':
+        if (h.enabled === false) return { id: h.id, label: h.name, ok: false, message: 'Already disabled' };
+        setEnabled(h.id, false);
+        return { id: h.id, label: h.name, ok: true, message: 'Disabled' };
+      default:
+        return { id: h.id, label: h.name, ok: false, message: 'Unknown action' };
+    }
   };
-  const confirmBulkReject = () => {
-    const targets = selectedList;
-    targets.forEach(h => rejectHomestay(h.id, bulkRejectReason.trim() || 'No reason provided'));
-    log({ actor: 'admin', actorName, action: 'reject', entity: 'Homestay', summary: `Bulk rejected ${targets.length} homestays`, after: { rejectionReason: bulkRejectReason, ids: targets.map(t => t.id) } });
-    toast.success(`Rejected ${targets.length} homestays`);
-    setBulkReject(false); setBulkRejectReason(''); clearSelection();
-  };
-  const bulkSetEnabled = (enabled: boolean) => {
-    const targets = selectedList.filter(h => (h.enabled !== false) !== enabled);
-    targets.forEach(h => setEnabled(h.id, enabled));
-    log({ actor: 'admin', actorName, action: enabled ? 'publish' : 'unpublish', entity: 'Homestay', summary: `Bulk ${enabled ? 'enabled' : 'disabled'} ${targets.length} homestays`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`${enabled ? 'Enabled' : 'Disabled'} ${targets.length} homestays`);
+
+  const completeBulk = (results: BulkItemResult[], reason: string) => {
+    const done = results.filter(r => r.ok);
+    if (done.length === 0) { setBulkAction(null); return; }
+    const map = { approve: 'approve', reject: 'reject', enable: 'publish', disable: 'unpublish' } as const;
+    log({
+      actor: 'admin', actorName, action: map[bulkAction!], entity: 'Homestay',
+      summary: `Bulk ${bulkAction}d ${done.length} homestay${done.length === 1 ? '' : 's'}`,
+      after: { ids: done.map(r => r.id), ...(reason ? { rejectionReason: reason } : {}) },
+    });
     clearSelection();
+    setBulkAction(null);
   };
 
   const canApprove = can('homestay.approve');
