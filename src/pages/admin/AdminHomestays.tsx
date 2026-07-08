@@ -468,17 +468,32 @@ export default function AdminHomestays() {
         </DialogContent>
       </Dialog>
 
-      {/* Bulk reject dialog */}
-      <Dialog open={bulkReject} onOpenChange={o => { if (!o) { setBulkReject(false); setBulkRejectReason(''); } }}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Reject {selected.size} homestays</DialogTitle></DialogHeader>
-          <Textarea placeholder="Reason for rejection (applied to all selected)..." value={bulkRejectReason} onChange={e => setBulkRejectReason(e.target.value)} rows={4} />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setBulkReject(false); setBulkRejectReason(''); }}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmBulkReject}>Reject all</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Bulk action confirmation with per-item results */}
+      <BulkConfirmDialog
+        open={bulkAction !== null}
+        onOpenChange={o => { if (!o) setBulkAction(null); }}
+        title={
+          bulkAction === 'approve' ? 'Approve homestays' :
+          bulkAction === 'reject' ? 'Reject homestays' :
+          bulkAction === 'enable' ? 'Enable homestays' : 'Disable homestays'
+        }
+        description={
+          bulkAction === 'reject'
+            ? 'Provide a reason; it will be shared with each host.'
+            : 'Review the affected homestays before confirming.'
+        }
+        confirmLabel={
+          bulkAction === 'approve' ? 'Approve all' :
+          bulkAction === 'reject' ? 'Reject all' :
+          bulkAction === 'enable' ? 'Enable all' : 'Disable all'
+        }
+        destructive={bulkAction === 'reject' || bulkAction === 'disable'}
+        requireReason={bulkAction === 'reject'}
+        reasonLabel="Reason for rejection"
+        targets={bulkTargets}
+        onConfirmItem={runBulkItem}
+        onComplete={completeBulk}
+      />
 
       {/* Delete confirm */}
       <AlertDialog open={!!deleteTarget} onOpenChange={o => { if (!o) setDeleteTarget(null); }}>
