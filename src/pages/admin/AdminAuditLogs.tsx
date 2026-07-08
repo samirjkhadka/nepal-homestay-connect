@@ -120,7 +120,12 @@ export default function AdminAuditLogs() {
                   <span className="text-xs text-muted-foreground ml-auto">{fmt(e.at)}</span>
                 </div>
                 <p className="text-sm text-foreground mt-1">{e.summary}</p>
-                <button className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1" onClick={() => setDetail(e)}><Eye className="w-3 h-3" />View details</button>
+                <div className="flex items-center gap-3 mt-1">
+                  <button className="text-xs text-primary hover:underline inline-flex items-center gap-1" onClick={() => setDetail(e)}><Eye className="w-3 h-3" />View details</button>
+                  {jumpTarget(e) && (
+                    <button className="text-xs text-primary hover:underline inline-flex items-center gap-1" onClick={() => navigate(jumpTarget(e)!)}><ExternalLink className="w-3 h-3" />Jump to {e.entity.toLowerCase()}</button>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
