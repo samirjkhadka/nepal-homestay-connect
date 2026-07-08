@@ -260,9 +260,9 @@ export default function AdminUsers() {
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
             <span className="text-sm font-medium mr-2">{selected.size} selected</span>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetStatus('active')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Activate</Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetStatus('inactive')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Deactivate</Button>
-            <Button size="sm" variant="outline" className="text-destructive" disabled={!canDelete} onClick={bulkDelete}>{canDelete ? <Trash2 className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Delete</Button>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('activate')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Activate</Button>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('deactivate')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Deactivate</Button>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canDelete} onClick={() => setBulkAction('delete')}>{canDelete ? <Trash2 className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Delete</Button>
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
           </Card>
         </motion.div>
