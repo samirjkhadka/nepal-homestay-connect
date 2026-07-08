@@ -337,16 +337,16 @@ export default function AdminHomestays() {
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
             <span className="text-sm font-medium mr-2">{selected.size} selected</span>
-            <Button size="sm" variant="outline" disabled={!canApprove} onClick={bulkApprove}>
+            <Button size="sm" variant="outline" disabled={!canApprove} onClick={() => setBulkAction('approve')}>
               {canApprove ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Approve
             </Button>
-            <Button size="sm" variant="outline" className="text-destructive" disabled={!canApprove} onClick={() => setBulkReject(true)}>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canApprove} onClick={() => setBulkAction('reject')}>
               {canApprove ? <X className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Reject
             </Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetEnabled(true)}>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('enable')}>
               {canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Enable
             </Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetEnabled(false)}>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('disable')}>
               {canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Disable
             </Button>
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
