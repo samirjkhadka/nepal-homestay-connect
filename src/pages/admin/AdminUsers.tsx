@@ -383,6 +383,29 @@ export default function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk action confirmation with per-item results */}
+      <BulkConfirmDialog
+        open={bulkAction !== null}
+        onOpenChange={o => { if (!o) setBulkAction(null); }}
+        title={
+          bulkAction === 'activate' ? 'Activate users' :
+          bulkAction === 'deactivate' ? 'Deactivate users' : 'Delete users'
+        }
+        description={
+          bulkAction === 'delete'
+            ? 'This permanently removes the selected users and cannot be undone.'
+            : 'Review the affected users before confirming.'
+        }
+        confirmLabel={
+          bulkAction === 'activate' ? 'Activate all' :
+          bulkAction === 'deactivate' ? 'Deactivate all' : 'Delete all'
+        }
+        destructive={bulkAction === 'delete' || bulkAction === 'deactivate'}
+        targets={bulkTargets}
+        onConfirmItem={runBulkItem}
+        onComplete={completeBulk}
+      />
     </div>
   );
 }
