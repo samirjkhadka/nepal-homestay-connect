@@ -128,8 +128,8 @@ export default function AdminAuditLogs() {
       )}
 
       <Card className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="relative lg:col-span-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="relative lg:col-span-2">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input className="pl-9" placeholder="Search…" value={q} onChange={e => setQ(e.target.value)} />
           </div>
@@ -150,12 +150,23 @@ export default function AdminAuditLogs() {
               {actions.map(a => <SelectItem key={a} value={a} className="capitalize">{a}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={entity} onValueChange={setEntity}>
+            <SelectTrigger><SelectValue placeholder="Entity type" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All entities</SelectItem>
+              {entities.map(en => <SelectItem key={en} value={en}>{en}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Entity ID…" value={entityId} onChange={e => setEntityId(e.target.value)} />
           <Input type="date" value={from} onChange={e => setFrom(e.target.value)} />
           <Input type="date" value={to} onChange={e => setTo(e.target.value)} />
         </div>
         <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
           <span>{filtered.length} of {entries.length} entries</span>
-          <button className="hover:text-destructive transition-colors" onClick={() => { clear(); toast('Audit log cleared'); }}>Clear log</button>
+          <div className="flex items-center gap-4">
+            <button className="hover:text-foreground transition-colors" onClick={resetFilters}>Reset filters</button>
+            <button className="hover:text-destructive transition-colors" onClick={() => { clear(); toast('Audit log cleared'); }}>Clear log</button>
+          </div>
         </div>
       </Card>
 
