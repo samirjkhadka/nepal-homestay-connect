@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock } from 'lucide-react';
+import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock, ExternalLink } from 'lucide-react';
 import { useAuditLog, AuditEntry, AuditActor } from '@/contexts/AuditLogContext';
 import { toast } from 'sonner';
 
