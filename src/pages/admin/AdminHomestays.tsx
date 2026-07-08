@@ -74,8 +74,7 @@ export default function AdminHomestays() {
   const [deleteTarget, setDeleteTarget] = useState<Homestay | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Homestay | null>(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [bulkReject, setBulkReject] = useState(false);
-  const [bulkRejectReason, setBulkRejectReason] = useState('');
+  const [bulkAction, setBulkAction] = useState<null | 'approve' | 'reject' | 'enable' | 'disable'>(null);
 
   const provinces = useMemo(
     () => Array.from(new Set(homestays.map(h => h.province))).sort(),
