@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
-import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock } from 'lucide-react';
+import { ScrollText, Download, Search, ShieldAlert, Eye, List, Clock, ExternalLink } from 'lucide-react';
 import { useAuditLog, AuditEntry, AuditActor } from '@/contexts/AuditLogContext';
 import { toast } from 'sonner';
 
@@ -28,19 +29,25 @@ function fmt(iso: string) {
 
 export default function AdminAuditLogs() {
   const { entries, clear } = useAuditLog();
+  const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [actor, setActor] = useState('all');
   const [action, setAction] = useState('all');
+  const [entity, setEntity] = useState('all');
+  const [entityId, setEntityId] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [detail, setDetail] = useState<AuditEntry | null>(null);
   const [view, setView] = useState<'table' | 'timeline'>('table');
 
   const actions = useMemo(() => Array.from(new Set(entries.map(e => e.action))).sort(), [entries]);
+  const entities = useMemo(() => Array.from(new Set(entries.map(e => e.entity))).sort(), [entries]);
 
   const filtered = useMemo(() => entries.filter(e => {
     if (actor !== 'all' && e.actor !== actor) return false;
     if (action !== 'all' && e.action !== action) return false;
+    if (entity !== 'all' && e.entity !== entity) return false;
+    if (entityId && !(e.entityId ?? '').toLowerCase().includes(entityId.toLowerCase())) return false;
     if (from && e.at < from) return false;
     if (to && e.at > to + 'T23:59:59') return false;
     if (q) {
@@ -48,7 +55,23 @@ export default function AdminAuditLogs() {
       if (!hay.includes(q.toLowerCase())) return false;
     }
     return true;
-  }), [entries, actor, action, from, to, q]);
+  }), [entries, actor, action, entity, entityId, from, to, q]);
+
+  // Map an audit entry to a destination route for quick-jump navigation.
+  const jumpTarget = (e: AuditEntry): string | null => {
+    if (!e.entityId) return null;
+    switch (e.entity) {
+      case 'Homestay': return `/homestay/${e.entityId}`;
+      case 'Listing': return '/admin/homestays';
+      case 'User':
+      case 'Host Application': return '/admin/users';
+      case 'Booking': return '/admin/bookings';
+      default: return null;
+    }
+  };
+  const resetFilters = () => {
+    setQ(''); setActor('all'); setAction('all'); setEntity('all'); setEntityId(''); setFrom(''); setTo('');
+  };
 
   const exportCsv = () => {
     const headers = ['Timestamp', 'Actor', 'Name', 'Action', 'Entity', 'Entity ID', 'Summary', 'IP'];
@@ -97,7 +120,12 @@ export default function AdminAuditLogs() {
                   <span className="text-xs text-muted-foreground ml-auto">{fmt(e.at)}</span>
                 </div>
                 <p className="text-sm text-foreground mt-1">{e.summary}</p>
-                <button className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1" onClick={() => setDetail(e)}><Eye className="w-3 h-3" />View details</button>
+                <div className="flex items-center gap-3 mt-1">
+                  <button className="text-xs text-primary hover:underline inline-flex items-center gap-1" onClick={() => setDetail(e)}><Eye className="w-3 h-3" />View details</button>
+                  {jumpTarget(e) && (
+                    <button className="text-xs text-primary hover:underline inline-flex items-center gap-1" onClick={() => navigate(jumpTarget(e)!)}><ExternalLink className="w-3 h-3" />Jump to {e.entity.toLowerCase()}</button>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
@@ -105,8 +133,8 @@ export default function AdminAuditLogs() {
       )}
 
       <Card className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="relative lg:col-span-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="relative lg:col-span-2">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input className="pl-9" placeholder="Search…" value={q} onChange={e => setQ(e.target.value)} />
           </div>
@@ -127,12 +155,23 @@ export default function AdminAuditLogs() {
               {actions.map(a => <SelectItem key={a} value={a} className="capitalize">{a}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={entity} onValueChange={setEntity}>
+            <SelectTrigger><SelectValue placeholder="Entity type" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All entities</SelectItem>
+              {entities.map(en => <SelectItem key={en} value={en}>{en}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Entity ID…" value={entityId} onChange={e => setEntityId(e.target.value)} />
           <Input type="date" value={from} onChange={e => setFrom(e.target.value)} />
           <Input type="date" value={to} onChange={e => setTo(e.target.value)} />
         </div>
         <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
           <span>{filtered.length} of {entries.length} entries</span>
-          <button className="hover:text-destructive transition-colors" onClick={() => { clear(); toast('Audit log cleared'); }}>Clear log</button>
+          <div className="flex items-center gap-4">
+            <button className="hover:text-foreground transition-colors" onClick={resetFilters}>Reset filters</button>
+            <button className="hover:text-destructive transition-colors" onClick={() => { clear(); toast('Audit log cleared'); }}>Clear log</button>
+          </div>
         </div>
       </Card>
 
@@ -168,7 +207,10 @@ export default function AdminAuditLogs() {
                     {e.entity}{e.entityId && <span className="font-mono text-xs ml-1">{e.entityId}</span>}
                   </td>
                   <td className="px-4 py-3 text-foreground max-w-md">{e.summary}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    {jumpTarget(e) && (
+                      <Button variant="ghost" size="sm" title={`Jump to ${e.entity}`} onClick={() => navigate(jumpTarget(e)!)}><ExternalLink className="w-4 h-4" /></Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => setDetail(e)}><Eye className="w-4 h-4" /></Button>
                   </td>
                 </tr>

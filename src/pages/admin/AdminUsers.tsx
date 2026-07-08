@@ -25,6 +25,7 @@ import { useUserStore, ManagedUser, ManagedUserRole, ManagedUserStatus } from '@
 import { useAuditLog } from '@/contexts/AuditLogContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
+import { BulkConfirmDialog, BulkTarget, BulkItemResult } from '@/components/admin/BulkConfirmDialog';
 
 const roleColors: Record<string, string> = {
   admin: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
@@ -61,6 +62,7 @@ export default function AdminUsers() {
   const [editing, setEditing] = useState<ManagedUser | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [deleteTarget, setDeleteTarget] = useState<ManagedUser | null>(null);
+  const [bulkAction, setBulkAction] = useState<null | 'activate' | 'deactivate' | 'delete'>(null);
 
   const canCreate = can('user.create');
   const canEdit = can('user.edit');
@@ -143,19 +145,44 @@ export default function AdminUsers() {
     setDeleteTarget(null);
   };
 
-  const bulkSetStatus = (status: ManagedUserStatus) => {
-    const targets = selectedList.filter(u => u.status !== status);
-    targets.forEach(u => setStatus(u.id, status));
-    log({ actor: 'admin', actorName, action: status === 'active' ? 'publish' : 'unpublish', entity: 'User', summary: `Bulk set ${targets.length} users to ${status}`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Updated ${targets.length} users`);
-    clearSelection();
+  // Bulk actions (via BulkConfirmDialog for per-item feedback)
+  const bulkTargets: BulkTarget[] = useMemo(
+    () => selectedList.map(u => ({ id: u.id, label: `${u.name} (${u.email})` })),
+    [selectedList],
+  );
+
+  const runBulkItem = (target: BulkTarget): BulkItemResult => {
+    const u = users.find(x => x.id === target.id);
+    if (!u) return { id: target.id, label: target.label, ok: false, message: 'Not found' };
+    switch (bulkAction) {
+      case 'activate':
+        if (u.status === 'active') return { id: u.id, label: target.label, ok: false, message: 'Already active' };
+        setStatus(u.id, 'active');
+        return { id: u.id, label: target.label, ok: true, message: 'Activated' };
+      case 'deactivate':
+        if (u.status === 'inactive') return { id: u.id, label: target.label, ok: false, message: 'Already inactive' };
+        setStatus(u.id, 'inactive');
+        return { id: u.id, label: target.label, ok: true, message: 'Deactivated' };
+      case 'delete':
+        deleteUser(u.id);
+        return { id: u.id, label: target.label, ok: true, message: 'Deleted' };
+      default:
+        return { id: u.id, label: target.label, ok: false, message: 'Unknown action' };
+    }
   };
-  const bulkDelete = () => {
-    const targets = [...selectedList];
-    targets.forEach(u => deleteUser(u.id));
-    log({ actor: 'admin', actorName, action: 'delete', entity: 'User', summary: `Bulk deleted ${targets.length} users`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Deleted ${targets.length} users`);
-    clearSelection();
+
+  const completeBulk = (results: BulkItemResult[]) => {
+    const done = results.filter(r => r.ok);
+    if (done.length > 0) {
+      const action = bulkAction === 'delete' ? 'delete' : bulkAction === 'activate' ? 'publish' : 'unpublish';
+      log({
+        actor: 'admin', actorName, action, entity: 'User',
+        summary: `Bulk ${bulkAction}d ${done.length} user${done.length === 1 ? '' : 's'}`,
+        after: { ids: done.map(r => r.id) },
+      });
+      clearSelection();
+    }
+    setBulkAction(null);
   };
 
   const SortTH = ({ k, children, className = '' }: { k: SortKey; children: React.ReactNode; className?: string }) => (
@@ -233,9 +260,9 @@ export default function AdminUsers() {
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
             <span className="text-sm font-medium mr-2">{selected.size} selected</span>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetStatus('active')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Activate</Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetStatus('inactive')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Deactivate</Button>
-            <Button size="sm" variant="outline" className="text-destructive" disabled={!canDelete} onClick={bulkDelete}>{canDelete ? <Trash2 className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Delete</Button>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('activate')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Activate</Button>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('deactivate')}>{canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Deactivate</Button>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canDelete} onClick={() => setBulkAction('delete')}>{canDelete ? <Trash2 className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Delete</Button>
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
           </Card>
         </motion.div>
@@ -356,6 +383,29 @@ export default function AdminUsers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk action confirmation with per-item results */}
+      <BulkConfirmDialog
+        open={bulkAction !== null}
+        onOpenChange={o => { if (!o) setBulkAction(null); }}
+        title={
+          bulkAction === 'activate' ? 'Activate users' :
+          bulkAction === 'deactivate' ? 'Deactivate users' : 'Delete users'
+        }
+        description={
+          bulkAction === 'delete'
+            ? 'This permanently removes the selected users and cannot be undone.'
+            : 'Review the affected users before confirming.'
+        }
+        confirmLabel={
+          bulkAction === 'activate' ? 'Activate all' :
+          bulkAction === 'deactivate' ? 'Deactivate all' : 'Delete all'
+        }
+        destructive={bulkAction === 'delete' || bulkAction === 'deactivate'}
+        targets={bulkTargets}
+        onConfirmItem={runBulkItem}
+        onComplete={completeBulk}
+      />
     </div>
   );
 }

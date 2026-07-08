@@ -32,6 +32,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_LABELS } from '@/lib/permissions';
 import { HomestayEditor } from '@/components/admin/HomestayEditor';
 import { HomestayDetailDrawer } from '@/components/admin/HomestayDetailDrawer';
+import { BulkConfirmDialog, BulkTarget, BulkItemResult } from '@/components/admin/BulkConfirmDialog';
 
 const statusStyle: Record<HomestayStatus, string> = {
   pending: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
@@ -74,8 +75,7 @@ export default function AdminHomestays() {
   const [deleteTarget, setDeleteTarget] = useState<Homestay | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Homestay | null>(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [bulkReject, setBulkReject] = useState(false);
-  const [bulkRejectReason, setBulkRejectReason] = useState('');
+  const [bulkAction, setBulkAction] = useState<null | 'approve' | 'reject' | 'enable' | 'disable'>(null);
 
   const provinces = useMemo(
     () => Array.from(new Set(homestays.map(h => h.province))).sort(),
@@ -210,27 +210,48 @@ export default function AdminHomestays() {
     setDeleteTarget(null);
   };
 
-  // Bulk actions
-  const bulkApprove = () => {
-    const targets = selectedList.filter(h => h.status !== 'approved');
-    targets.forEach(h => approveHomestay(h.id));
-    log({ actor: 'admin', actorName, action: 'approve', entity: 'Homestay', summary: `Bulk approved ${targets.length} homestays`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`Approved ${targets.length} homestays`);
-    clearSelection();
+  // Bulk actions (handled via BulkConfirmDialog for per-item feedback)
+  const bulkTargets: BulkTarget[] = useMemo(
+    () => selectedList.map(h => ({ id: h.id, label: h.name })),
+    [selectedList],
+  );
+
+  const runBulkItem = (target: BulkTarget, reason: string): BulkItemResult => {
+    const h = homestays.find(x => x.id === target.id);
+    if (!h) return { id: target.id, label: target.label, ok: false, message: 'Not found' };
+    switch (bulkAction) {
+      case 'approve':
+        if (h.status === 'approved') return { id: h.id, label: h.name, ok: false, message: 'Already approved' };
+        approveHomestay(h.id);
+        return { id: h.id, label: h.name, ok: true, message: 'Approved and live' };
+      case 'reject':
+        if (h.status === 'rejected') return { id: h.id, label: h.name, ok: false, message: 'Already rejected' };
+        rejectHomestay(h.id, reason || 'No reason provided');
+        return { id: h.id, label: h.name, ok: true, message: 'Rejected' };
+      case 'enable':
+        if (h.enabled !== false) return { id: h.id, label: h.name, ok: false, message: 'Already enabled' };
+        setEnabled(h.id, true);
+        return { id: h.id, label: h.name, ok: true, message: 'Enabled' };
+      case 'disable':
+        if (h.enabled === false) return { id: h.id, label: h.name, ok: false, message: 'Already disabled' };
+        setEnabled(h.id, false);
+        return { id: h.id, label: h.name, ok: true, message: 'Disabled' };
+      default:
+        return { id: h.id, label: h.name, ok: false, message: 'Unknown action' };
+    }
   };
-  const confirmBulkReject = () => {
-    const targets = selectedList;
-    targets.forEach(h => rejectHomestay(h.id, bulkRejectReason.trim() || 'No reason provided'));
-    log({ actor: 'admin', actorName, action: 'reject', entity: 'Homestay', summary: `Bulk rejected ${targets.length} homestays`, after: { rejectionReason: bulkRejectReason, ids: targets.map(t => t.id) } });
-    toast.success(`Rejected ${targets.length} homestays`);
-    setBulkReject(false); setBulkRejectReason(''); clearSelection();
-  };
-  const bulkSetEnabled = (enabled: boolean) => {
-    const targets = selectedList.filter(h => (h.enabled !== false) !== enabled);
-    targets.forEach(h => setEnabled(h.id, enabled));
-    log({ actor: 'admin', actorName, action: enabled ? 'publish' : 'unpublish', entity: 'Homestay', summary: `Bulk ${enabled ? 'enabled' : 'disabled'} ${targets.length} homestays`, after: { ids: targets.map(t => t.id) } });
-    toast.success(`${enabled ? 'Enabled' : 'Disabled'} ${targets.length} homestays`);
+
+  const completeBulk = (results: BulkItemResult[], reason: string) => {
+    const done = results.filter(r => r.ok);
+    if (done.length === 0) { setBulkAction(null); return; }
+    const map = { approve: 'approve', reject: 'reject', enable: 'publish', disable: 'unpublish' } as const;
+    log({
+      actor: 'admin', actorName, action: map[bulkAction!], entity: 'Homestay',
+      summary: `Bulk ${bulkAction}d ${done.length} homestay${done.length === 1 ? '' : 's'}`,
+      after: { ids: done.map(r => r.id), ...(reason ? { rejectionReason: reason } : {}) },
+    });
     clearSelection();
+    setBulkAction(null);
   };
 
   const canApprove = can('homestay.approve');
@@ -316,16 +337,16 @@ export default function AdminHomestays() {
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-3 flex flex-wrap items-center gap-2 border-primary/40 bg-primary/[0.04]">
             <span className="text-sm font-medium mr-2">{selected.size} selected</span>
-            <Button size="sm" variant="outline" disabled={!canApprove} onClick={bulkApprove}>
+            <Button size="sm" variant="outline" disabled={!canApprove} onClick={() => setBulkAction('approve')}>
               {canApprove ? <Check className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Approve
             </Button>
-            <Button size="sm" variant="outline" className="text-destructive" disabled={!canApprove} onClick={() => setBulkReject(true)}>
+            <Button size="sm" variant="outline" className="text-destructive" disabled={!canApprove} onClick={() => setBulkAction('reject')}>
               {canApprove ? <X className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Reject
             </Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetEnabled(true)}>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('enable')}>
               {canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Enable
             </Button>
-            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => bulkSetEnabled(false)}>
+            <Button size="sm" variant="outline" disabled={!canToggle} onClick={() => setBulkAction('disable')}>
               {canToggle ? <Power className="w-4 h-4 mr-1" /> : <Lock className="w-3.5 h-3.5 mr-1" />}Disable
             </Button>
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>Clear</Button>
@@ -447,17 +468,32 @@ export default function AdminHomestays() {
         </DialogContent>
       </Dialog>
 
-      {/* Bulk reject dialog */}
-      <Dialog open={bulkReject} onOpenChange={o => { if (!o) { setBulkReject(false); setBulkRejectReason(''); } }}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Reject {selected.size} homestays</DialogTitle></DialogHeader>
-          <Textarea placeholder="Reason for rejection (applied to all selected)..." value={bulkRejectReason} onChange={e => setBulkRejectReason(e.target.value)} rows={4} />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setBulkReject(false); setBulkRejectReason(''); }}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmBulkReject}>Reject all</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Bulk action confirmation with per-item results */}
+      <BulkConfirmDialog
+        open={bulkAction !== null}
+        onOpenChange={o => { if (!o) setBulkAction(null); }}
+        title={
+          bulkAction === 'approve' ? 'Approve homestays' :
+          bulkAction === 'reject' ? 'Reject homestays' :
+          bulkAction === 'enable' ? 'Enable homestays' : 'Disable homestays'
+        }
+        description={
+          bulkAction === 'reject'
+            ? 'Provide a reason; it will be shared with each host.'
+            : 'Review the affected homestays before confirming.'
+        }
+        confirmLabel={
+          bulkAction === 'approve' ? 'Approve all' :
+          bulkAction === 'reject' ? 'Reject all' :
+          bulkAction === 'enable' ? 'Enable all' : 'Disable all'
+        }
+        destructive={bulkAction === 'reject' || bulkAction === 'disable'}
+        requireReason={bulkAction === 'reject'}
+        reasonLabel="Reason for rejection"
+        targets={bulkTargets}
+        onConfirmItem={runBulkItem}
+        onComplete={completeBulk}
+      />
 
       {/* Delete confirm */}
       <AlertDialog open={!!deleteTarget} onOpenChange={o => { if (!o) setDeleteTarget(null); }}>
