@@ -99,7 +99,7 @@ export function HeroSection() {
                   <img
                     src={h.images[0]}
                     alt={h.name}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     width={56}
                     height={56}
