@@ -15,13 +15,15 @@ const languages = [
 
 export function Navbar() {
   const { content } = useCMS();
-  const navItems = [
-    { name: 'Home', href: '/' },
-    ...content.navLinks.filter(l => l.visible).map(l => ({ name: l.label, href: l.href })),
-  ];
+  const visibleLinks = content.navLinks.filter(l => l.visible).map(l => ({ name: l.label, href: l.href }));
+  const primaryItems = visibleLinks.slice(0, 3);
+  const moreItems = visibleLinks.slice(3);
+  const navItems = [{ name: 'Home', href: '/' }, ...visibleLinks];
   const [isOpen, setIsOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+
    const { theme, setTheme } = useTheme();
    const [isDark, setIsDark] = useState(false);
  
@@ -59,8 +61,8 @@ export function Navbar() {
             </Link>
           </motion.div>
 
-          <div className="hidden lg:flex items-center gap-8">
-            {navItems.map((item) => (
+          <div className="hidden lg:flex items-center gap-7">
+            {primaryItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -71,10 +73,47 @@ export function Navbar() {
                 </motion.span>
               </Link>
             ))}
+
+            {moreItems.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => setShowMore(true)}
+                onMouseLeave={() => setShowMore(false)}
+              >
+                <button className="flex items-center gap-1 text-foreground/80 hover:text-primary font-medium transition-colors">
+                  More
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <AnimatePresence>
+                  {showMore && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      className="absolute left-0 top-full pt-3 w-52"
+                    >
+                      <div className="bg-card rounded-xl shadow-elevated border border-border overflow-hidden py-1">
+                        {moreItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            onClick={() => setShowMore(false)}
+                            className="block px-4 py-2.5 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
 
+
           {/* Right Side Actions */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2">
              {/* Theme Toggle */}
              <motion.button
                whileHover={{ scale: 1.05 }}
