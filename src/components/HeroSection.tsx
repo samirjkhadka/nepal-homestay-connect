@@ -1,33 +1,79 @@
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Star, MapPin, Compass, Search, ShieldCheck, ChevronDown } from 'lucide-react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, MapPin, Compass, Search, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useHomestayStore } from '@/contexts/HomestayStoreContext';
 import { useCMS } from '@/contexts/CMSContext';
 import heroImage from '@/assets/hero-1.jpg';
 
 const regions = ['Everest', 'Annapurna', 'Kathmandu Valley', 'Chitwan', 'Lumbini', 'Mustang'];
+const SLIDE_MS = 6000;
 
 export function HeroSection() {
   const { publicHomestays } = useHomestayStore();
   const { content } = useCMS();
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   const featured = useMemo(
-    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 3),
+    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 4),
     [publicHomestays],
   );
 
+  // Slide 0 renders immediately from the bundled local image; remote slides
+  // only load when they become "next", so first paint is never blocked.
+  const slides = useMemo(
+    () => [
+      { id: 'hero-static', image: heroImage, name: null as string | null, location: '', rating: 0, price: 0, link: null as string | null },
+      ...featured.map((h) => ({
+        id: h.id, image: h.images[0], name: h.name, location: h.location,
+        rating: h.rating, price: h.pricePerNight, link: `/homestay/${h.id}`,
+      })),
+    ],
+    [featured],
+  );
+
+  const total = slides.length;
+
+  // Preload only the NEXT slide, one at a time.
+  useEffect(() => {
+    const next = slides[(current + 1) % total];
+    if (next) {
+      const img = new Image();
+      img.src = next.image;
+    }
+  }, [current, slides, total]);
+
+  useEffect(() => {
+    if (paused || total < 2) return;
+    const t = setInterval(() => setCurrent((c) => (c + 1) % total), SLIDE_MS);
+    return () => clearInterval(t);
+  }, [paused, total]);
+
+  const slide = slides[current];
+
   return (
-    <section className="relative min-h-[88vh] flex items-end overflow-hidden">
-      {/* Static hero image — loads once, no carousel swapping */}
-      <img
-        src={heroImage}
-        alt="Traditional Nepali village homestay beneath the Himalayas"
-        loading="eager"
-        decoding="sync"
-        fetchPriority="high"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+    <section
+      className="relative min-h-[88vh] flex items-end overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Crossfade background stack — no layout swaps, images fade over each other */}
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={slide.id}
+          src={slide.image}
+          alt={slide.name ?? 'Traditional Nepali village homestay beneath the Himalayas'}
+          loading={current === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={current === 0 ? 'high' : 'auto'}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/50" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
 
@@ -81,56 +127,56 @@ export function HeroSection() {
               ))}
             </div>
           </motion.div>
-
-          {/* Featured stays strip — static, no autoplay */}
-          {featured.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="mt-8 grid sm:grid-cols-3 gap-3 max-w-4xl"
-            >
-              {featured.map((h) => (
-                <Link
-                  key={h.id}
-                  to={`/homestay/${h.id}`}
-                  className="group flex items-center gap-3 p-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/20 transition-colors"
-                >
-                  <img
-                    src={h.images[0]}
-                    alt={h.name}
-                    loading="eager"
-                    decoding="async"
-                    width={56}
-                    height={56}
-                    className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{h.name}</p>
-                    <p className="text-white/60 text-xs flex items-center gap-1 truncate">
-                      <MapPin className="w-3 h-3 flex-shrink-0" />
-                      {h.location}
-                    </p>
-                    <p className="text-white/80 text-xs flex items-center gap-1 mt-0.5">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      {h.rating} · NPR {h.pricePerNight.toLocaleString()}/night
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </motion.div>
-          )}
         </div>
       </div>
 
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 text-white/60 hidden md:flex flex-col items-center gap-1 text-[10px] uppercase tracking-widest"
-      >
-        Scroll
-        <ChevronDown className="w-4 h-4" />
-      </motion.div>
+      {/* Bottom-right: slide caption + dot progress, minimal */}
+      {total > 1 && (
+        <div className="absolute bottom-6 right-6 z-10 hidden md:flex flex-col items-end gap-3">
+          <AnimatePresence mode="wait">
+            {slide.name && (
+              <motion.div
+                key={slide.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35 }}
+              >
+                <Link
+                  to={slide.link!}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-colors"
+                >
+                  <div>
+                    <p className="text-white text-sm font-semibold">{slide.name}</p>
+                    <p className="text-white/70 text-xs flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {slide.location}
+                      <span className="mx-1">·</span>
+                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" /> {slide.rating}
+                      <span className="mx-1">·</span> NPR {slide.price.toLocaleString()}/night
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div className="flex items-center gap-1.5 pr-1">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => setCurrent(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className="group p-1"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all duration-500 ${
+                    i === current ? 'w-6 bg-white' : 'w-1.5 bg-white/40 group-hover:bg-white/70'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
