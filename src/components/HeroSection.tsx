@@ -1,214 +1,136 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, MapPin, Users, User, Eye, ChevronDown } from 'lucide-react';
+import { useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Star, MapPin, Compass, Search, ShieldCheck, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useHomestayStore } from '@/contexts/HomestayStoreContext';
+import { useCMS } from '@/contexts/CMSContext';
+import heroImage from '@/assets/hero-1.jpg';
 
+const regions = ['Everest', 'Annapurna', 'Kathmandu Valley', 'Chitwan', 'Lumbini', 'Mustang'];
 
 export function HeroSection() {
   const { publicHomestays } = useHomestayStore();
-  const topHomestays = useMemo(
-    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 4),
+  const { content } = useCMS();
+
+  const featured = useMemo(
+    () => [...publicHomestays].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews).slice(0, 3),
     [publicHomestays],
   );
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
-
-  useEffect(() => {
-    if (!topHomestays.length) return;
-    // Preload all hero images so slide transitions are instant
-    topHomestays.forEach((h, idx) => {
-      const img = new Image();
-      img.onload = () => setLoaded(prev => ({ ...prev, [idx]: true }));
-      img.src = h.images[0];
-    });
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, [topHomestays]);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % topHomestays.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + topHomestays.length) % topHomestays.length);
-  const homestay = topHomestays[currentSlide];
-  const isLoaded = loaded[currentSlide];
-
-  if (!homestay) return null;
 
   return (
-    <section className="relative h-screen min-h-[600px] max-h-[900px] md:max-h-none md:h-screen overflow-hidden">
-      {/* Background Images with Ken-Burns */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}
-          className="absolute inset-0"
-        >
-          {/* Blurred placeholder: shimmer gradient until image loads */}
-          {!isLoaded && (
-            <div className="absolute inset-0 shimmer bg-gradient-to-br from-muted via-muted/60 to-muted" />
+    <section className="relative min-h-[88vh] flex items-end overflow-hidden">
+      {/* Static hero image — loads once, no carousel swapping */}
+      <img
+        src={heroImage}
+        alt="Traditional Nepali village homestay beneath the Himalayas"
+        loading="eager"
+        decoding="sync"
+        fetchPriority="high"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+
+      <div className="relative z-10 w-full pt-28 pb-10 md:pb-14">
+        <div className="section-container">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="max-w-3xl"
+          >
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-medium">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Community-verified stays across all 7 provinces
+            </span>
+
+            <h1 className="mt-4 font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight text-shadow-hero">
+              {content.hero.headline}
+            </h1>
+            <p className="mt-3 text-base md:text-lg text-white/80 max-w-xl">
+              {content.hero.subheadline}
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/homestays"
+                className="btn-cta inline-flex items-center gap-2 px-6 py-3 bg-gradient-warm text-primary-foreground rounded-xl font-semibold shadow-lg tap-target"
+              >
+                <Search className="w-4 h-4" />
+                {content.hero.ctaPrimary}
+              </Link>
+              <Link
+                to="/trip-planner"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-white/10 backdrop-blur-md border border-white/25 hover:bg-white/20 transition-colors tap-target"
+              >
+                <Compass className="w-4 h-4" />
+                {content.hero.ctaSecondary}
+              </Link>
+            </div>
+
+            {/* Region quick links */}
+            <div className="mt-6 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              {regions.map((r) => (
+                <Link
+                  key={r}
+                  to={`/search?location=${encodeURIComponent(r)}`}
+                  className="whitespace-nowrap text-xs md:text-sm px-3 py-1.5 rounded-full border border-white/25 text-white/85 hover:bg-white/15 transition-colors"
+                >
+                  {r}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Featured stays strip — static, no autoplay */}
+          {featured.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="mt-8 grid sm:grid-cols-3 gap-3 max-w-4xl"
+            >
+              {featured.map((h) => (
+                <Link
+                  key={h.id}
+                  to={`/homestay/${h.id}`}
+                  className="group flex items-center gap-3 p-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/20 transition-colors"
+                >
+                  <img
+                    src={h.images[0]}
+                    alt={h.name}
+                    loading="lazy"
+                    decoding="async"
+                    width={56}
+                    height={56}
+                    className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-semibold truncate">{h.name}</p>
+                    <p className="text-white/60 text-xs flex items-center gap-1 truncate">
+                      <MapPin className="w-3 h-3 flex-shrink-0" />
+                      {h.location}
+                    </p>
+                    <p className="text-white/80 text-xs flex items-center gap-1 mt-0.5">
+                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      {h.rating} · NPR {h.pricePerNight.toLocaleString()}/night
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </motion.div>
           )}
-          <img
-            src={homestay.images[0]}
-            alt={homestay.name}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            onLoad={() => setLoaded(prev => ({ ...prev, [currentSlide]: true }))}
-            className={`w-full h-full object-cover animate-ken-burns transition-[filter,opacity] duration-500 ${
-              isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md scale-105'
-            }`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/45 to-transparent" />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </div>
 
-
-      {/* Scroll indicator */}
       <motion.div
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 text-white/70 hidden md:flex flex-col items-center gap-1 text-[10px] uppercase tracking-widest"
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 text-white/60 hidden md:flex flex-col items-center gap-1 text-[10px] uppercase tracking-widest"
       >
         Scroll
         <ChevronDown className="w-4 h-4" />
       </motion.div>
-
-      {/* Main Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end pb-8 md:pb-12">
-        <div className="section-container w-full space-y-6 md:space-y-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-            >
-              {/* Top badges row */}
-              <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20">
-                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-white text-xs font-semibold">{homestay.rating}</span>
-                  <span className="text-white/60 text-xs">({homestay.reviews})</span>
-                </div>
-                {homestay.host.isSuperhost && (
-                  <span className="text-xs bg-accent/90 text-accent-foreground px-3 py-1 rounded-full font-semibold">
-                    ★ Superhost
-                  </span>
-                )}
-                <span className="text-xs bg-secondary/80 text-secondary-foreground px-3 py-1 rounded-full font-medium">
-                  {homestay.province}
-                </span>
-              </div>
-
-              {/* Title */}
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 md:mb-3 leading-tight text-shadow-hero">
-                {homestay.name}
-              </h1>
-
-              {/* Location & details */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-white/80 mb-3 md:mb-4">
-                <span className="flex items-center gap-1.5 text-sm md:text-base">
-                  <MapPin className="w-4 h-4" />
-                  {homestay.location}
-                </span>
-                <span className="hidden sm:inline text-white/40">•</span>
-                <span className="flex items-center gap-1.5 text-sm md:text-base">
-                  <Users className="w-4 h-4" />
-                  {homestay.maxGuests} guests · {homestay.bedrooms} bed · {homestay.bathrooms} bath
-                </span>
-              </div>
-
-              {/* Description */}
-              <p className="text-sm md:text-base text-white/70 mb-4 md:mb-5 max-w-xl line-clamp-2">
-                {homestay.description}
-              </p>
-
-              {/* Host + Price + CTA row */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                {/* Host */}
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center">
-                    <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-semibold">{homestay.host.name}</p>
-                    <p className="text-white/50 text-xs">Hosting since {homestay.host.since}</p>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="hidden sm:block w-px h-10 bg-white/20" />
-
-                {/* Price */}
-                <div>
-                  <span className="text-white text-xl md:text-2xl font-bold">
-                    NPR {homestay.pricePerNight.toLocaleString()}
-                  </span>
-                  <span className="text-white/50 text-sm"> / night</span>
-                </div>
-
-                {/* CTA */}
-                <Link
-                  to={`/homestay/${homestay.id}`}
-                  className="btn-cta inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-warm text-primary-foreground rounded-xl font-semibold text-sm md:text-base shadow-lg sm:ml-auto tap-target"
-                >
-                  <Eye className="w-4 h-4" />
-                  View & Book
-                </Link>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-
-          {/* Bottom row: indicators */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              {topHomestays.map((h, index) => (
-                <button
-                  key={h.id}
-                  onClick={() => setCurrentSlide(index)}
-                  aria-label={`Go to slide ${index + 1}`}
-                  className={`relative overflow-hidden transition-all duration-300 rounded-full h-2 ${
-                    index === currentSlide
-                      ? 'w-10 bg-white/30'
-                      : 'w-2 bg-white/40 hover:bg-white/60'
-                  }`}
-                >
-                  {index === currentSlide && (
-                    <motion.span
-                      key={currentSlide}
-                      initial={{ width: '0%' }}
-                      animate={{ width: '100%' }}
-                      transition={{ duration: 7, ease: 'linear' }}
-                      className="absolute inset-y-0 left-0 bg-white rounded-full"
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={prevSlide}
-                className="p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/10 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 text-white" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/10 transition-colors"
-              >
-                <ChevronRight className="w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
