@@ -61,8 +61,8 @@ export function Navbar() {
             </Link>
           </motion.div>
 
-          <div className="hidden lg:flex items-center gap-8">
-            {navItems.map((item) => (
+          <div className="hidden lg:flex items-center gap-7">
+            {primaryItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -73,7 +73,44 @@ export function Navbar() {
                 </motion.span>
               </Link>
             ))}
+
+            {moreItems.length > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={() => setShowMore(true)}
+                onMouseLeave={() => setShowMore(false)}
+              >
+                <button className="flex items-center gap-1 text-foreground/80 hover:text-primary font-medium transition-colors">
+                  More
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <AnimatePresence>
+                  {showMore && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      className="absolute left-0 top-full pt-3 w-52"
+                    >
+                      <div className="bg-card rounded-xl shadow-elevated border border-border overflow-hidden py-1">
+                        {moreItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            onClick={() => setShowMore(false)}
+                            className="block px-4 py-2.5 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
+
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center gap-4">
