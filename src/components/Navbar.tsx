@@ -15,13 +15,15 @@ const languages = [
 
 export function Navbar() {
   const { content } = useCMS();
-  const navItems = [
-    { name: 'Home', href: '/' },
-    ...content.navLinks.filter(l => l.visible).map(l => ({ name: l.label, href: l.href })),
-  ];
+  const visibleLinks = content.navLinks.filter(l => l.visible).map(l => ({ name: l.label, href: l.href }));
+  const primaryItems = visibleLinks.slice(0, 3);
+  const moreItems = visibleLinks.slice(3);
+  const navItems = [{ name: 'Home', href: '/' }, ...visibleLinks];
   const [isOpen, setIsOpen] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+
    const { theme, setTheme } = useTheme();
    const [isDark, setIsDark] = useState(false);
  
