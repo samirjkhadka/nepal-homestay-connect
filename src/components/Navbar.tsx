@@ -113,7 +113,7 @@ export function Navbar() {
 
 
           {/* Right Side Actions */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2">
              {/* Theme Toggle */}
              <motion.button
                whileHover={{ scale: 1.05 }}
